@@ -114,7 +114,7 @@ export default function ROICalculator() {
                 label: "Your annual gain",
                 value: annualGain > 0 ? fmt(annualGain) + "/yr" : "$0",
                 highlight: true,
-                sub: "vs Skadi Growth plan at $599/mo",
+                sub: "vs Skadi Starter plan at $1500/mo",
               },
             ].map((result, i) => (
               <div key={result.label}>
