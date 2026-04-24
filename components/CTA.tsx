@@ -26,7 +26,7 @@ export default function CTA({ onBookDemo }: CTAProps) {
           <span className="text-gold">again.</span>
         </h2>
         <p className="text-[17px] text-[rgba(245,240,232,0.45)] mb-11 font-light leading-[1.7] max-w-[440px] mx-auto">
-          Setup in 48 hours. No tech team needed.<br />Always on  .  Always closing.
+          Setup in 48 hours. No tech team needed.<br />Always on.Always closing.
         </p>
         <div className="flex gap-3.5 justify-center flex-wrap">
           <button
