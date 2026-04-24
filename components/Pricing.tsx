@@ -1,22 +1,24 @@
+import { forwardRef } from 'react';
+
 const plans = [
   {
     tier: "Starter",
     price: "$1500",
-    period: "Setup + $349 / month",
+    period: "Setup + $700 / month",
     features: [
-      "Up to 500 calls / month",
+      "First 10 calls Free",
       "Lead qualification",
       "Calendar booking",
       "Custom voice & tone",
       "Email summaries",
     ],
     featured: false,
-    btnLabel: "Get started",
+    btnLabel: "Book a Demo",
   },
   {
     tier: "Growth - Most Popular",
     price: "$2500",
-    period: "Setup + $599 / month",
+    period: "Setup + $1100 / month",
     features: [
       "Unlimited calls",
       "Advanced lead scoring",
@@ -26,7 +28,7 @@ const plans = [
       "Monthly performance report",
     ],
     featured: true,
-    btnLabel: "Get started",
+    btnLabel: "Book a Demo",
   },
   {
     tier: "Enterprise",
@@ -44,7 +46,11 @@ const plans = [
   },
 ];
 
-export default function Pricing() {
+interface PricingProps {
+  onBookDemo?: () => void;
+}
+
+const Pricing = forwardRef<HTMLDivElement, PricingProps>(({ onBookDemo }, ref) => {
   return (
     <div className="bg-parchment-dark" id="pricing">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 py-[100px]">
@@ -109,10 +115,11 @@ export default function Pricing() {
               </ul>
 
               <button
+                onClick={onBookDemo}
                 className={`w-full py-[13px] rounded-md text-[13px] font-medium tracking-[0.04em] transition-all duration-150 cursor-pointer border ${
                   plan.featured
                     ? "bg-parchment text-forest border-parchment hover:bg-parchment/90"
-                    : "bg-transparent text-forest border-stone hover:bg-forest hover:text-parchment hover:border-forest"
+                    : "bg-transparent text-forest border-[rgba(28,69,50,0.3)] hover:bg-forest hover:text-parchment hover:border-forest"
                 }`}
               >
                 {plan.btnLabel}
@@ -123,4 +130,8 @@ export default function Pricing() {
       </div>
     </div>
   );
-}
+});
+
+Pricing.displayName = 'Pricing';
+
+export default Pricing;

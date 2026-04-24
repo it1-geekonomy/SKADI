@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function CTA() {
+interface CTAProps {
+  onBookDemo?: () => void;
+}
+
+export default function CTA({ onBookDemo }: CTAProps) {
   return (
     <div className="relative min-h-[480px] flex items-center overflow-hidden">
       {/* Backgrounds */}
@@ -22,15 +26,15 @@ export default function CTA() {
           <span className="text-gold">again.</span>
         </h2>
         <p className="text-[17px] text-[rgba(245,240,232,0.45)] mb-11 font-light leading-[1.7] max-w-[440px] mx-auto">
-          Setup in 48 hours. No tech team needed. Cancel anytime.
+          Setup in 48 hours. No tech team needed.<br />Always on  ·  Always closing.
         </p>
         <div className="flex gap-3.5 justify-center flex-wrap">
-          <Link
-            href="#"
-            className="px-9 py-[15px] bg-parchment text-forest rounded text-[14px] font-semibold no-underline tracking-[0.04em] inline-block transition-opacity duration-200 hover:opacity-90"
+          <button
+            onClick={onBookDemo}
+            className="px-9 py-[15px] bg-parchment text-forest rounded text-[14px] font-semibold tracking-[0.04em] transition-opacity duration-200 hover:opacity-90"
           >
-            Book Your Free Demo
-          </Link>
+            Book a Demo
+          </button>
           <Link
             href="#roi"
             className="px-9 py-[15px] bg-transparent text-parchment border border-[rgba(245,240,232,0.3)] rounded text-[14px] font-medium no-underline tracking-[0.04em] inline-block transition-colors duration-200 hover:border-parchment"

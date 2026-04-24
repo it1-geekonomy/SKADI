@@ -4,59 +4,64 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Navbar() {
+interface NavbarProps {
+  onBookDemo?: () => void;
+}
+
+export default function Navbar({ onBookDemo }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between pr-6 h-[68px] bg-[rgba(245,240,232,0.96)] backdrop-blur-[16px] border-b border-stone">
-      <Link href="#" className="no-underline leading-none py-0 -translate-x-20">
-        <Image
-          src="/logo.png"
-          alt="Skadi"
-          width={320}
-          height={200}
-          className="h-[clamp(200px,24vw,200px)] w-auto block"
-        />
-      </Link>
+      <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between pr-6 h-[68px] bg-[rgba(245,240,232,0.96)] backdrop-blur-[16px] border-b border-stone">
+        <Link href="#" className="no-underline leading-none py-0 -translate-x-20">
+          <Image
+            src="/logo.png"
+            alt="Skadi"
+            width={320}
+            height={200}
+            className="h-[clamp(200px,24vw,200px)] w-auto block"
+          />
+        </Link>
 
-      {/* Desktop Menu */}
-      <ul className="hidden lg:flex gap-10 list-none">
-        {[
-          { label: "The Problem", href: "#problem" },
-          { label: "How We Fix It", href: "#fix" },
-          { label: "ROI Calculator", href: "#roi" },
-          { label: "Pricing", href: "#pricing" },
-        ].map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="text-[13px] font-normal text-mid no-underline tracking-[0.02em] transition-colors duration-200 hover:text-forest"
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+        {/* Desktop Menu */}
+        <ul className="hidden lg:flex gap-10 list-none">
+          {[
+            { label: "The Problem", href: "#problem" },
+            { label: "How We Fix It", href: "#fix" },
+            { label: "ROI Calculator", href: "#roi" },
+            { label: "Pricing", href: "#pricing" },
+          ].map((item) => (
+            <li key={item.href}>
+              <Link
+                href={item.href}
+                className="text-[13px] font-normal text-mid no-underline tracking-[0.02em] transition-colors duration-200 hover:text-forest"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-      {/* Desktop CTA */}
-      <Link
-        href="#"
-        className="hidden lg:block text-[13px] font-medium px-6 py-2.5 bg-forest text-parchment rounded no-underline tracking-[0.04em] transition-colors duration-200 hover:bg-canopy"
-      >
-        Book a Demo
-      </Link>
+        {/* Desktop CTA */}
+        <button
+          onClick={onBookDemo}
+          className="hidden lg:block text-[13px] font-medium px-6 py-2.5 bg-forest text-parchment rounded tracking-[0.04em] transition-colors duration-200 hover:bg-canopy"
+        >
+          Book a Demo
+        </button>
 
-      {/* Mobile Hamburger Menu */}
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="lg:hidden flex flex-col gap-1.5 p-2"
-        aria-label="Toggle menu"
-      >
-        <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></div>
-        <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></div>
-        <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></div>
-      </button>
-    </nav>
+        {/* Mobile Hamburger Menu */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="lg:hidden flex flex-col gap-1.5 p-2"
+          aria-label="Toggle menu"
+        >
+          <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></div>
+          <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></div>
+          <div className={`w-6 h-0.5 bg-forest transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></div>
+        </button>
+      </nav>
+
       {/* Mobile Menu Dropdown */}
       <div 
         className={`fixed top-[68px] left-0 right-0 z-[90] bg-[rgba(245,240,232,0.98)] backdrop-blur-[16px] border-b border-stone lg:hidden transition-all duration-500 ease-out ${
@@ -104,13 +109,15 @@ export default function Navbar() {
                 transitionDelay: isMenuOpen ? '200ms' : '0ms'
               }}
             >
-              <Link
-                href="#"
-                onClick={() => setIsMenuOpen(false)}
-                className="text-[15px] font-medium px-6 py-3 max-w-[200px] bg-forest text-parchment rounded no-underline tracking-[0.04em] transition-all duration-300 hover:bg-canopy hover:scale-105 hover:shadow-lg block text-center transform mx-auto"
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  onBookDemo?.();
+                }}
+                className="text-[15px] font-medium px-6 py-3 max-w-[200px] bg-forest text-parchment rounded tracking-[0.04em] transition-all duration-300 hover:bg-canopy hover:scale-105 hover:shadow-lg block text-center transform mx-auto"
               >
                 Book a Demo
-              </Link>
+              </button>
             </li>
           </ul>
         </div>

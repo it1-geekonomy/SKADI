@@ -1,7 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export default function Hero() {
+interface HeroProps {
+  onGetStarted?: () => void;
+}
+
+export default function Hero({ onGetStarted }: HeroProps) {
   return (
     <section className="min-h-screen overflow-hidden relative">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 pt-[100px] pb-0">
@@ -33,8 +37,8 @@ export default function Hero() {
         {/* Actions */}
         <div className="animate-fade-up-4 flex gap-3 flex-wrap">
           <Link
-            href="#"
-            className="px-8 py-3.5 bg-forest text-parchment rounded text-[14px] font-medium tracking-[0.04em] no-underline transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
+            href="#pricing"
+            className="px-8 py-3.5 bg-forest text-parchment rounded text-[14px] font-medium tracking-[0.04em] transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
           >
             Get Started
           </Link>
