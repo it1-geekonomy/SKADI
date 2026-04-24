@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -16,106 +16,164 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     estimatedMonthlyBookings: ''
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  // ── Scroll lock ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
+  // ── Escape key close ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [isOpen, onClose]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    // Handle form submission here
     onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-parchment rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-bebas text-forest tracking-[0.04em]">
-              Book a Demo
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-mid hover:text-forest transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+    /*
+     * Overlay
+     * - fixed inset-0 + z-50: covers entire viewport
+     * - overflow-y-auto: lets the overlay itself scroll on very short screens
+     *   so the modal is never clipped
+     * - p-4 sm:p-6: breathing room on all sides
+     * - items-start sm:items-center: align top on mobile (avoids keyboard
+     *   pushing content off-screen), centered on larger screens
+     */
+    <div
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center
+                 overflow-y-auto p-4 sm:p-6
+                 bg-black/60 backdrop-blur-sm"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      {/*
+       * Modal card
+       * - w-full max-w-md: full width on mobile, capped on desktop
+       * - max-h-[calc(100dvh-2rem)]: never taller than the viewport (dvh
+       *   accounts for mobile browser chrome / virtual keyboard)
+       * - overflow-y-auto: scroll inside the card when content is tall
+       * - my-auto: vertical centering inside the flex column on short screens
+       */}
+      <div
+        className="relative bg-parchment rounded-xl shadow-2xl
+                   w-full max-w-md
+                   max-h-[calc(100dvh-2rem)]
+                   overflow-y-auto
+                   my-auto"
+      >
+        {/* ── Sticky header ─────────────────────────────────────────────── */}
+        <div
+          className="sticky top-0 z-10 bg-parchment
+                     flex justify-between items-center
+                     px-5 sm:px-6 pt-5 sm:pt-6 pb-3
+                     border-b border-stone/30"
+        >
+          <h3
+            id="modal-title"
+            className="text-2xl sm:text-3xl font-bebas text-forest tracking-[0.04em]"
+          >
+            Book a Demo
+          </h3>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-mid hover:text-forest hover:bg-stone/20
+                       rounded-lg p-1 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-          {/* Form */}
+        {/* ── Form body ─────────────────────────────────────────────────── */}
+        <div className="px-5 sm:px-6 py-5 sm:py-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Full Name */}
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-forest mb-1">
-                Full Name*
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                required
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-stone rounded-lg focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent"
-                placeholder="John Doe"
-              />
+
+            {/* Name + Phone side-by-side on wider screens */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="fullName"
+                       className="block text-sm font-medium text-forest mb-1">
+                  Full Name *
+                </label>
+                <input
+                  type="text" id="fullName" name="fullName" required
+                  value={formData.fullName} onChange={handleChange}
+                  placeholder="John Doe"
+                  className="w-full px-3 py-2 border border-stone rounded-lg
+                             focus:outline-none focus:ring-2 focus:ring-forest
+                             focus:border-transparent bg-parchment"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="phoneNumber"
+                       className="block text-sm font-medium text-forest mb-1">
+                  Phone Number *
+                </label>
+                <input
+                  type="tel" id="phoneNumber" name="phoneNumber" required
+                  value={formData.phoneNumber} onChange={handleChange}
+                  placeholder="+1 (555) 123-4567"
+                  className="w-full px-3 py-2 border border-stone rounded-lg
+                             focus:outline-none focus:ring-2 focus:ring-forest
+                             focus:border-transparent bg-parchment"
+                />
+              </div>
             </div>
 
             {/* Work Email */}
             <div>
-              <label htmlFor="workEmail" className="block text-sm font-medium text-forest mb-1">
-                Work Email*
+              <label htmlFor="workEmail"
+                     className="block text-sm font-medium text-forest mb-1">
+                Work Email *
               </label>
               <input
-                type="email"
-                id="workEmail"
-                name="workEmail"
-                required
-                value={formData.workEmail}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-stone rounded-lg focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent"
+                type="email" id="workEmail" name="workEmail" required
+                value={formData.workEmail} onChange={handleChange}
                 placeholder="john@company.com"
-              />
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-forest mb-1">
-                Phone Number*
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                required
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-stone rounded-lg focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent"
-                placeholder="+1 (555) 123-4567"
+                className="w-full px-3 py-2 border border-stone rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-forest
+                           focus:border-transparent bg-parchment"
               />
             </div>
 
             {/* Industry */}
             <div>
-              <label htmlFor="industry" className="block text-sm font-medium text-forest mb-1">
-                Industry*
+              <label htmlFor="industry"
+                     className="block text-sm font-medium text-forest mb-1">
+                Industry *
               </label>
               <select
-                id="industry"
-                name="industry"
-                required
-                value={formData.industry}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-stone rounded-lg focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent"
+                id="industry" name="industry" required
+                value={formData.industry} onChange={handleChange}
+                className="w-full px-3 py-2 border border-stone rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-forest
+                           focus:border-transparent bg-parchment"
               >
                 <option value="">Select an industry</option>
                 <option value="healthcare">Healthcare</option>
@@ -132,31 +190,33 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
 
             {/* Estimated Monthly Bookings */}
             <div>
-              <label htmlFor="estimatedMonthlyBookings" className="block text-sm font-medium text-forest mb-1">
-                Estimated Monthly Bookings*
+              <label htmlFor="estimatedMonthlyBookings"
+                     className="block text-sm font-medium text-forest mb-1">
+                Estimated Monthly Bookings *
               </label>
               <select
-                id="estimatedMonthlyBookings"
-                name="estimatedMonthlyBookings"
-                required
-                value={formData.estimatedMonthlyBookings}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-stone rounded-lg focus:outline-none focus:ring-2 focus:ring-forest focus:border-transparent"
+                id="estimatedMonthlyBookings" name="estimatedMonthlyBookings" required
+                value={formData.estimatedMonthlyBookings} onChange={handleChange}
+                className="w-full px-3 py-2 border border-stone rounded-lg
+                           focus:outline-none focus:ring-2 focus:ring-forest
+                           focus:border-transparent bg-parchment"
               >
                 <option value="">Select range</option>
-                <option value="0-50">0-50</option>
-                <option value="51-100">51-100</option>
-                <option value="101-250">101-250</option>
-                <option value="251-500">251-500</option>
-                <option value="501-1000">501-1000</option>
+                <option value="0-50">0–50</option>
+                <option value="51-100">51–100</option>
+                <option value="101-250">101–250</option>
+                <option value="251-500">251–500</option>
+                <option value="501-1000">501–1000</option>
                 <option value="1000+">1000+</option>
               </select>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-forest text-parchment py-3 rounded-lg font-medium tracking-[0.04em] transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
+              className="w-full bg-forest text-parchment py-3 rounded-lg
+                         font-medium tracking-[0.04em] transition-all duration-200
+                         hover:bg-canopy hover:-translate-y-px active:translate-y-0"
             >
               Submit
             </button>

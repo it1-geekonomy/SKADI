@@ -24,7 +24,7 @@ export default function Hero({ onGetStarted }: HeroProps) {
             SKADI
           </span>
           <span className="text-[11px] font-normal tracking-[0.26em] text-mid uppercase mt-2.5 block">
-            Always on &nbsp;·&nbsp; Always closing.
+            Always on . Always closing.
           </span>
         </div>
 
