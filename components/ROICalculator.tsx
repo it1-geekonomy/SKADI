@@ -135,7 +135,7 @@ export default function ROICalculator() {
               </div>
             ))}
             <p className="text-[11px] text-[rgba(245,240,232,0.25)] font-light leading-[1.6] italic">
-              * Based on your inputs. Recovery rate fixed at 85% — the
+              * Based on your inputs. Recovery rate fixed at 85% - the
               industry-researched average for AI voice agent lead capture. Actual
               results vary by industry.
             </p>

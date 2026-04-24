@@ -14,8 +14,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Skadi — Always On. Always Closing.",
-  description: "An AI voice agent that picks up every call, qualifies every lead, and books every appointment — 24 hours a day, 7 days a week.",
+  title: "Skadi - Always On. Always Closing.",
+  description: "An AI voice agent that picks up every call, qualifies every lead, and books every appointment - 24 hours a day, 7 days a week.",
 };
 
 export default function RootLayout({

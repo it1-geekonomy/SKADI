@@ -14,7 +14,7 @@ const features = [
   {
     icon: <CalendarIcon />,
     title: "Books appointments",
-    text: "Syncs with your calendar. Converts calls to confirmed bookings — zero back and forth.",
+    text: "Syncs with your calendar. Converts calls to confirmed bookings - zero back and forth.",
   },
   {
     icon: <RadioIcon />,
@@ -25,25 +25,25 @@ const features = [
 
 const callLog = [
   {
-    name: "James R. — Real Estate Inquiry",
+    name: "James R. - Real Estate Inquiry",
     time: "2 min ago",
     status: "booked",
     statusLabel: "✓ Appointment booked",
     note: "Viewing scheduled Thursday 3PM. Budget confirmed. High intent.",
   },
   {
-    name: "Sarah M. — Clinic Booking",
+    name: "Sarah M. - Clinic Booking",
     time: "14 min ago",
     status: "qualified",
     statusLabel: "→ Lead qualified",
     note: "Follow-up requested. Transferred to calendar for Friday AM.",
   },
   {
-    name: "Arjun T. — Service Quote",
+    name: "Arjun T. - Service Quote",
     time: "38 min ago",
     status: "booked",
     statusLabel: "✓ Appointment booked",
-    note: "Quote call booked Friday AM. Third call this week — warm lead.",
+    note: "Quote call booked Friday AM. Third call this week - warm lead.",
   },
 ];
 

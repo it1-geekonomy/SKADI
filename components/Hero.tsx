@@ -27,7 +27,7 @@ export default function Hero() {
         {/* Description */}
         <p className="animate-fade-up-3 text-[18px] text-mid leading-[1.75] font-light mb-11 max-w-[480px]">
           An AI voice agent that picks up every call, qualifies every lead, and
-          books every appointment — 24 hours a day, 7 days a week.
+          books every appointment - 24 hours a day, 7 days a week.
         </p>
 
         {/* Actions */}
@@ -36,7 +36,7 @@ export default function Hero() {
             href="#"
             className="px-8 py-3.5 bg-forest text-parchment rounded text-[14px] font-medium tracking-[0.04em] no-underline transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
           >
-            Get Started Free
+            Get Started
           </Link>
           <Link
             href="#problem"

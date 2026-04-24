@@ -16,11 +16,11 @@ export default function Home() {
       <Navbar />
       <Hero />
       <Problem />
-      <HowSkadiFixesIt />
-      <Features />
-      <Testimonial />
-      <ROICalculator />
       <Industries />
+      <ROICalculator />
+      <HowSkadiFixesIt />
+      {/* <Features /> */}
+      <Testimonial />
       <Pricing />
       <CTA />
       <Footer />

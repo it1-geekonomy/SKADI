@@ -1,9 +1,9 @@
 import { PhoneIcon, ClockIcon, MoonIcon, UsersIcon } from "./Icons";
 
 const stats = [
-  { num: "62%", label: "of small business calls go unanswered — only 1 in 3 reaches a live person" },
-  { num: "2 min", label: "is all it takes — 60% of callers hang up if not answered within 2 minutes" },
-  { num: "85%", label: "of callers who hit voicemail never call back — and 62% call a competitor instead" },
+  { num: "62%", label: "of small business calls go unanswered - only 1 in 3 reaches a live person" },
+  { num: "20 sec", label: "is all it takes - 60% of callers hang up if not answered within 20 seconds" },
+  { num: "85%", label: "of callers who hit voicemail never call back - and 62% call a competitor instead" },
   { num: "$126K", label: "lost annually by the average small business due to missed calls alone" },
 ];
 
@@ -44,7 +44,7 @@ export default function Problem() {
         </h2>
         <p className="text-[17px] text-mid leading-[1.75] font-light max-w-[520px]">
           Most business owners don't realise it. Every unanswered call is a lead
-          that walked straight to your competitor — and never came back.
+          that walked straight to your competitor - and never came back.
         </p>
 
         <div className="mt-16">

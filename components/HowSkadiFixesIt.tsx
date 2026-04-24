@@ -5,7 +5,7 @@ const fixes = [
     icon: <PhoneIcon />,
     problem: "Calls going unanswered and straight to voicemail",
     solutionTitle: "Every call answered in under 3 seconds",
-    solutionBody: "Skadi picks up every inbound call instantly. No voicemail, no wait, no missed opportunity — ever.",
+    solutionBody: "Skadi picks up every inbound call instantly. No voicemail, no wait, no missed opportunity - ever.",
   },
   {
     icon: <ClockIcon />,
@@ -16,14 +16,14 @@ const fixes = [
   {
     icon: <MoonIcon />,
     problem: "After-hours leads hitting a dead end with no coverage",
-    solutionTitle: "24/7 coverage — nights, weekends, holidays",
-    solutionBody: "Skadi never sleeps. Every after-hours call is answered, qualified, and logged — ready for you in the morning.",
+    solutionTitle: "24/7 coverage - nights, weekends, holidays",
+    solutionBody: "Skadi never sleeps. Every after-hours call is answered, qualified, and logged - ready for you in the morning.",
   },
   {
     icon: <CalendarIcon />,
     problem: "Qualified leads with no system to convert them into bookings",
     solutionTitle: "Appointments booked directly into your calendar",
-    solutionBody: "Skadi syncs with your calendar and converts qualified calls into confirmed appointments — no back and forth.",
+    solutionBody: "Skadi syncs with your calendar and converts qualified calls into confirmed appointments - no back and forth.",
   },
 ];
 
@@ -31,12 +31,12 @@ const timeline = [
   {
     num: "01",
     title: "We onboard Skadi to your business",
-    text: "We train Skadi on your tone, FAQs, services, and objections. She learns your world completely in 48 hours — no tech team needed on your end.",
+    text: "We train Skadi on your tone, FAQs, services, and objections. She learns your world completely in 48 hours - no tech team needed on your end.",
   },
   {
     num: "02",
-    title: "Calls come in — Skadi picks up",
-    text: "Your number stays exactly the same. Skadi picks up every call instantly — no voicemail, no wait, no friction for your callers.",
+    title: "Calls come in - Skadi picks up",
+    text: "Your number stays exactly the same. Skadi picks up every call instantly - no voicemail, no wait, no friction for your callers.",
   },
   {
     num: "03",
@@ -46,7 +46,7 @@ const timeline = [
   {
     num: "04",
     title: "Appointments land in your calendar",
-    text: "Skadi syncs with your calendar and converts qualified calls into confirmed bookings — before you've even looked at your phone.",
+    text: "Skadi syncs with your calendar and converts qualified calls into confirmed bookings - before you've even looked at your phone.",
   },
 ];
 
@@ -60,7 +60,7 @@ export default function HowSkadiFixesIt() {
         <h2 className="font-bebas text-[clamp(44px,5vw,64px)] leading-none tracking-[0.04em] text-forest mb-5">
           Every problem above.
           <br />
-          Solved — automatically.
+          Solved - automatically.
         </h2>
         <p className="text-[17px] text-mid leading-[1.75] font-light max-w-[520px] mb-14">
           Skadi steps in exactly where your business is leaking revenue and seals

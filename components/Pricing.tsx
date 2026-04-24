@@ -1,7 +1,7 @@
 const plans = [
   {
     tier: "Starter",
-    price: "$699",
+    price: "$1500",
     period: "Setup + $349 / month",
     features: [
       "Up to 500 calls / month",
@@ -14,8 +14,8 @@ const plans = [
     btnLabel: "Get started",
   },
   {
-    tier: "Growth — Most Popular",
-    price: "$999",
+    tier: "Growth - Most Popular",
+    price: "$2500",
     period: "Setup + $599 / month",
     features: [
       "Unlimited calls",
