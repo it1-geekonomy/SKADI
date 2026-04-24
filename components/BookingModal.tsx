@@ -15,6 +15,8 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     industry: '',
     estimatedMonthlyBookings: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   // ── Scroll lock ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -41,10 +43,44 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    onClose();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setSubmitStatus('success');
+        setTimeout(() => {
+          onClose();
+          setSubmitStatus('idle');
+          setFormData({
+            fullName: '',
+            workEmail: '',
+            phoneNumber: '',
+            industry: '',
+            estimatedMonthlyBookings: ''
+          });
+        }, 2000);
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -211,14 +247,29 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
               </select>
             </div>
 
+            {/* Status messages */}
+            {submitStatus === 'success' && (
+              <div className="text-green-600 text-center font-medium">
+                ✓ Booking submitted successfully! We'll be in touch soon.
+              </div>
+            )}
+            {submitStatus === 'error' && (
+              <div className="text-red-600 text-center font-medium">
+                ✗ Failed to submit. Please try again.
+              </div>
+            )}
+
             {/* Submit */}
             <button
               type="submit"
+              disabled={isSubmitting}
               className="w-full bg-forest text-parchment py-3 rounded-lg
                          font-medium tracking-[0.04em] transition-all duration-200
-                         hover:bg-canopy hover:-translate-y-px active:translate-y-0"
+                         hover:bg-canopy hover:-translate-y-px active:translate-y-0
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         disabled:hover:bg-forest disabled:hover:translate-y-0"
             >
-              Submit
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
           </form>
         </div>
