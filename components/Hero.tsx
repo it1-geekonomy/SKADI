@@ -71,7 +71,7 @@ export default function Hero({ onGetStarted }: HeroProps) {
             This month
           </div>
           <div className="font-bebas text-[28px] text-forest tracking-[0.04em] leading-none">
-            247
+            247+
           </div>
           <div className="text-[11px] text-mid font-light mt-0.5">
             calls answered by Skadi
@@ -99,7 +99,7 @@ export default function Hero({ onGetStarted }: HeroProps) {
             This month
           </div>
           <div className="font-bebas text-[36px] text-forest tracking-[0.04em] leading-none">
-            247
+            247+
           </div>
           <div className="text-[12px] text-mid font-light mt-1">
             calls answered by Skadi
