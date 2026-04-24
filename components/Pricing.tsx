@@ -42,7 +42,7 @@ const plans = [
       "SLA guaranteed uptime",
     ],
     featured: false,
-    btnLabel: "Talk to us",
+    btnLabel: "Book a Demo",
   },
 ];
 
