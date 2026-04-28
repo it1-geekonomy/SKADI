@@ -15,9 +15,9 @@ export default function Footer() {
       <p className="text-[12px] text-[rgba(245,240,232,0.2)] font-light">
         © {currentYear} Skadi. All rights reserved.
       </p>
-      <p className="text-[12px] text-[rgba(245,240,232,0.2)] font-light">
+      <a href="mailto:connect@geekonomy.in" className="text-[12px] text-[rgba(245,240,232,0.2)] font-light no-underline">
         connect@geekonomy.in
-      </p>
+      </a>
       </div>
     </footer>
   );
