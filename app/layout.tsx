@@ -46,6 +46,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <meta name="google-site-verification" content="5D51veGcsxokTotZ8O8SjI9bnbHfojWUeXTVps36lX8" />
       </head>
       <body className={`${bebasNeue.variable} ${inter.variable} font-inter bg-parchment text-obsidian font-normal`}>
         {/* <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" /> */}
