@@ -2,7 +2,7 @@ import { PhoneIcon, ClockIcon, MoonIcon, UsersIcon } from "./Icons";
 
 const stats = [
   { num: "62%", label: "of small business calls go unanswered - only 1 in 3 reaches a live person" },
-  { num: "20 sec", label: "is all it takes - 60% of callers hang up if not answered within 20 seconds" },
+  { num: "10 sec", label: "is all it takes - 60% of callers hang up if not answered within 10 seconds" },
   { num: "85%", label: "of callers who hit voicemail never call back - and 62% call a competitor instead" },
   { num: "$126K", label: "lost annually by the average small business due to missed calls alone" },
 ];

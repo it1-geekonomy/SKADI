@@ -4,7 +4,7 @@ const fixes = [
   {
     icon: <PhoneIcon />,
     problem: "Calls going unanswered and straight to voicemail",
-    solutionTitle: "Every call answered in under 3 seconds",
+    solutionTitle: "Every call answered in under 10 seconds",
     solutionBody: "Skadi picks up every inbound call instantly. No voicemail, no wait, no missed opportunity - ever.",
   },
   {
