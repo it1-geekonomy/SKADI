@@ -250,7 +250,7 @@ export default function BookingModal({ isOpen, onClose }: BookingModalProps) {
             {/* Status messages */}
             {submitStatus === 'success' && (
               <div className="text-green-600 text-center font-medium">
-                ✓ Booking submitted successfully! We'll be in touch soon.
+                ✓ Booking submitted successfully! We&apos;ll be in touch soon.
               </div>
             )}
             {submitStatus === 'error' && (

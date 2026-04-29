@@ -43,7 +43,7 @@ export default function Problem() {
           revenue every day.
         </h2>
         <p className="text-[17px] text-mid leading-[1.75] font-light max-w-[520px]">
-          Most business owners don't realise it. Every unanswered call is a lead
+          Most business owners don&apos;t realise it. Every unanswered call is a lead
           that walked straight to your competitor - and never came back.
         </p>
 
