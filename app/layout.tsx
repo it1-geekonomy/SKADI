@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import "./globals.css";
-import AnimatedGifFavicon from "../components/AnimatedGifFavicon";
+// import AnimatedGifFavicon from "../components/AnimatedGifFavicon";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -44,7 +44,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${bebasNeue.variable} ${inter.variable} font-inter bg-parchment text-obsidian font-normal`}>
-        <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" />
+        {/* <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" /> */}
         {children}
       </body>
     </html>
