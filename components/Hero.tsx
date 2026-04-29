@@ -13,10 +13,10 @@ export default function Hero({ onGetStarted }: HeroProps) {
       {/* Left */}
       <div className="pt-10">
         {/* Badge */}
-        <div className="animate-fade-up-1 inline-flex items-center gap-2 px-3.5 py-[7px] bg-[rgba(28,69,50,0.08)] border border-[rgba(28,69,50,0.18)] rounded-full text-[11px] font-medium text-forest tracking-[0.1em] uppercase mb-9">
+        <h1 className="animate-fade-up-1 inline-flex items-center gap-2 px-3.5 py-[7px] bg-[rgba(28,69,50,0.08)] border border-[rgba(28,69,50,0.18)] rounded-full text-[11px] font-medium text-forest tracking-[0.1em] uppercase mb-9">
           <div className="w-1.5 h-1.5 bg-forest rounded-full animate-pulse-dot" />
           AI Voice Agent · Live 24/7
-        </div>
+        </h1>
 
         {/* Wordmark */}
         <div className="animate-fade-up-2 mb-7">
