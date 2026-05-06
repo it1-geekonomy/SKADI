@@ -323,7 +323,7 @@ export default function CallsPage() {
               disabled={syncing}
               className="px-3 py-1 border border-border bg-surface-hover text-text-main text-[12px] font-medium rounded-lg hover:bg-surface3 transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
-              {syncing ? "Syncing…" : "Sync from Retell"}
+              {syncing ? "Syncing…" : "Sync"}
             </button>
             <button
               type="button"

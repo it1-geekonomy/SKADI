@@ -61,7 +61,6 @@ export function CallDetailModal({ isOpen, onClose, call }: CallDetailModalProps)
             </div>
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <InfoPill label="Duration" value={call.duration} mono />
-              <InfoPill label="Cost" value={call.cost} mono />
               <InfoPill label="Outcome" value={call.outcome} />
               <InfoPill label="From" value={call.caller} mono />
               <InfoPill label="To" value={call.to} mono />
@@ -179,7 +178,6 @@ export function CallDetailModal({ isOpen, onClose, call }: CallDetailModalProps)
                 <KeyValue label="To" value={call.to} mono />
                 <KeyValue label="Outcome" value={call.outcome} />
                 <KeyValue label="Duration" value={call.duration} mono />
-                <KeyValue label="Cost" value={call.cost} mono />
                 <KeyValue label="Tokens" value={call.tokens} mono />
                 <KeyValue label="Latency" value={call.latency} mono />
                 <KeyValue label="Status" value={call.callStatusLabel} />
