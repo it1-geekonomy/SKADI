@@ -27,8 +27,8 @@ export default function Navbar({ onBookDemo }: NavbarProps) {
         <ul className="hidden lg:flex gap-10 list-none">
           {[
             { label: "The Problem", href: "#problem" },
-            { label: "How We Fix It", href: "#fix" },
             { label: "ROI Calculator", href: "#roi" },
+            { label: "How We Fix It", href: "#fix" },
             { label: "Pricing", href: "#pricing" },
           ].map((item) => (
             <li key={item.href}>
