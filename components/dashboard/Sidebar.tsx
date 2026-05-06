@@ -11,6 +11,8 @@ interface NavItem {
 
 interface SidebarProps {
   logo: string;
+  logoSrc?: string;
+  homeHref?: string;
   sections: {
     label: string;
     items: NavItem[];
@@ -24,7 +26,17 @@ interface SidebarProps {
   onNavigate?: () => void;
 }
 
-export function Sidebar({ logo, sections, user, className, onNavigate }: SidebarProps) {
+export function Sidebar({
+  logo,
+  logoSrc,
+  homeHref,
+  sections,
+  user,
+  className,
+  onNavigate,
+}: SidebarProps) {
+  const logoHref = homeHref ?? "/";
+  const src = logoSrc ?? "/Skadi Logo Final.png";
   return (
     <aside
       className={[
@@ -33,15 +45,15 @@ export function Sidebar({ logo, sections, user, className, onNavigate }: Sidebar
       ].join(" ")}
     >
       <div className="px-4 py-3 border-b border-border">
-        <Link href="/" className="flex items-center">
-          <div className="relative w-full max-w-[200px] h-[45px] overflow-hidden">
+        <Link href={logoHref} className="flex items-center" onClick={onNavigate}>
+          <div className="relative w-full max-w-[195px] h-[50px] overflow-hidden">
             <Image
-              src="/Skadi Logo Final.png"
-              alt="Skadi"
+              src={src}
+              alt={logo || "Skadi"}
               fill
               priority
               sizes="300px"
-              className="object-cover object-center scale-[1.95]"
+              className="object-contain object-left"
             />
           </div>
         </Link>

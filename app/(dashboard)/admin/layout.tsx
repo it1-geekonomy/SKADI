@@ -50,6 +50,8 @@ export default function AdminDashboardLayout({
         {/* Desktop sidebar */}
         <Sidebar
           logo="SKADI"
+          logoSrc="/Skadi Logo Final-01 (1).svg"
+          homeHref="/admin"
           sections={sections}
           user={{ name: "Admin", role: "Administrator", initials: "AD" }}
           className="hidden md:flex h-screen sticky top-0"
@@ -67,6 +69,8 @@ export default function AdminDashboardLayout({
             <div className="absolute left-0 top-0 h-full w-[280px] bg-surface border-r border-border shadow-2xl">
               <Sidebar
                 logo="SKADI"
+                logoSrc="/Skadi Logo Final-01 (1).svg"
+                homeHref="/admin"
                 sections={sections}
                 user={{ name: "Admin", role: "Administrator", initials: "AD" }}
                 className="w-full h-full"

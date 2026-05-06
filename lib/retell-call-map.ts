@@ -227,11 +227,33 @@ function shortenId(id: string, head = 18, tail = 4): string {
 }
 
 function formatDisconnect(reason?: string): string {
-  if (!reason) return '—';
-  return reason
+  const raw = reason?.trim();
+  if (!raw) return '—';
+
+  const key = raw.toLowerCase();
+  const map: Record<string, string> = {
+    user_hangup: 'Caller hung up',
+    user_hangup_timeout: 'Caller hung up',
+    agent_hangup: 'Agent ended the call',
+    agent_hangup_timeout: 'Agent ended the call',
+    call_timeout: 'Call timed out',
+    no_answer: 'No answer',
+    busy: 'Line busy',
+    network_error: 'Network issue',
+    error: 'Call error',
+  };
+  if (map[key]) return map[key];
+
+  // Fallback: "foo_bar" -> "Foo bar"
+  return raw
     .split('_')
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-    .join('_');
+    .filter(Boolean)
+    .map((p, i) =>
+      i === 0
+        ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
+        : p.toLowerCase()
+    )
+    .join(' ');
 }
 
 function formatCallStatusLabel(raw?: string | null): string {

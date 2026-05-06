@@ -13,7 +13,7 @@ const FULL_CALL_HISTORY: any[] = [
     tokens: "2702.75", latency: "1616ms", disconnect: "User_hangup",
     summary: "Chetan called to schedule a consultation for renting a 2BHK apartment in JP Nagar. The agent confirmed an appointment with Divyasree for May 18th at 10:00 AM, collected Chetan's contact details, and reassured him that the booking was successful.",
     transcript: [
-      { role: "agent", ts: "0:00", text: "Hi there, thank you for calling. This is Skadi, Divyasree's scheduling assistant. May I know your name please?" },
+      { role: "agent", ts: "0:00", text: "Hi there, thank you for calling. This is Skadi, ivyasree's scheduling assistant. May I know your name please?" },
       { role: "user", ts: "0:15", text: "Hi. My name is Chetan." },
       { role: "agent", ts: "0:17", text: "Thank you, Chetan. How can I help you today?" },
     ]

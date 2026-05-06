@@ -47,6 +47,8 @@ export default function ClientDashboardLayout({
         {/* Desktop sidebar */}
         <Sidebar
           logo="SKADI"
+          logoSrc="/Skadi Logo Final-01 (1).svg"
+          homeHref="/client"
           sections={sections}
           user={{ name: "Divyasree", role: "Client", initials: "DS" }}
           className="hidden md:flex h-screen sticky top-0"
@@ -64,6 +66,8 @@ export default function ClientDashboardLayout({
             <div className="absolute left-0 top-0 h-full w-[280px] bg-surface border-r border-border shadow-2xl">
               <Sidebar
                 logo="SKADI"
+                logoSrc="/Skadi Logo Final-01 (1).svg"
+                homeHref="/client"
                 sections={sections}
                 user={{ name: "Divyasree", role: "Client", initials: "DS" }}
                 className="w-full h-full"
