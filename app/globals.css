@@ -13,6 +13,7 @@
   --color-light-mid: #9A9A96;
   --font-bebas: var(--font-bebas);
   --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
 
   /* Dashboard — default dark */
   --color-bg: #0a0a0a;
@@ -26,7 +27,7 @@
   --color-text-main: #e8e8e8;
   --color-text-dim: #888888;
   --color-text-muted: #555555;
-  --font-geist: "Geist", sans-serif;
+  --font-geist: var(--font-poppins);
   --font-mono: "Geist Mono", monospace;
 }
 

@@ -20,6 +20,23 @@ type TableCall = {
 
 type CallDetail = React.ComponentProps<typeof CallDetailModal>["call"];
 
+function csvEscape(v: unknown): string {
+  const s = v == null ? "" : String(v);
+  if (/[",\r\n]/.test(s)) return `"${s.replaceAll('"', '""')}"`;
+  return s;
+}
+
+function fileKeyForRange(range: TimeRange): string {
+  switch (range) {
+    case "today":
+      return "today";
+    case "7d":
+      return "last-7-days";
+    default:
+      return "last-30-days";
+  }
+}
+
 function rangeSubtitle(range: TimeRange): string {
   switch (range) {
     case "30d":
@@ -42,6 +59,13 @@ export default function CallsPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ kind: "success" | "info" | "error"; message: string } | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const showToast = useCallback((t: { kind: "success" | "info" | "error"; message: string }) => {
+    setToast(t);
+    window.setTimeout(() => setToast(null), 4200);
+  }, []);
 
   const loadCalls = useCallback(
     async (opts?: { silent?: boolean }) => {
@@ -76,6 +100,7 @@ export default function CallsPage() {
 
   const handleSyncFromRetell = async () => {
     setSyncNotice(null);
+    setToast(null);
     setSyncing(true);
     setError(null);
     try {
@@ -95,6 +120,14 @@ export default function CallsPage() {
       const skippedInvalid =
         typeof data.skipped_invalid === "number" ? data.skipped_invalid : 0;
 
+      const didChange = inserted > 0 || updated > 0;
+      if (!didChange) {
+        showToast({
+          kind: "info",
+          message: "Everything is already up to date. No new changes were found.",
+        });
+      }
+
       const parts = [
         `Fetched ${fetched} call(s) from Retell.`,
         `New: ${inserted}.`,
@@ -105,10 +138,16 @@ export default function CallsPage() {
       if (skippedInvalid > 0) parts.push(`Skipped invalid: ${skippedInvalid}.`);
       if (removed > 0) parts.push(`Removed old web rows: ${removed}.`);
 
-      setSyncNotice(parts.join(" "));
+      if (didChange) {
+        setSyncNotice(parts.join(" "));
+      }
       await loadCalls({ silent: true });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sync failed");
+      showToast({
+        kind: "error",
+        message: e instanceof Error ? e.message : "Sync failed",
+      });
     } finally {
       setSyncing(false);
     }
@@ -139,8 +178,83 @@ export default function CallsPage() {
     }
   };
 
+  const handleExportCsv = async () => {
+    setError(null);
+    setSyncNotice(null);
+    setToast(null);
+    setExporting(true);
+    try {
+      const params = new URLSearchParams({
+        limit: "5000",
+        skip: "0",
+        range: timeRange,
+        outcome: outcomeFilter,
+      });
+      const res = await fetch(`/api/calls?${params}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to export CSV");
+
+      const rows: TableCall[] = Array.isArray(data.calls) ? data.calls : [];
+      if (!rows.length) {
+        showToast({ kind: "info", message: "No calls found for this filter." });
+        return;
+      }
+
+      const header = ["Caller", "Time", "Duration", "Sentiment", "To", "Direction", "Outcome", "Call ID"];
+      const lines = [
+        header.join(","),
+        ...rows.map((r) =>
+          [
+            csvEscape(r.caller),
+            csvEscape(r.time),
+            csvEscape(r.duration),
+            csvEscape(r.sentiment),
+            csvEscape(r.to),
+            csvEscape(r.direction),
+            csvEscape(r.outcome),
+            csvEscape(r.call_id),
+          ].join(",")
+        ),
+      ];
+
+      const csv = lines.join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `calls_${fileKeyForRange(timeRange)}_${outcomeFilter}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      showToast({ kind: "success", message: `Exported ${rows.length} row(s) to CSV.` });
+    } catch (e) {
+      showToast({ kind: "error", message: e instanceof Error ? e.message : "Failed to export CSV" });
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6 font-geist bg-bg min-h-full">
+      {toast ? (
+        <div className="fixed top-[66px] right-6 z-[60]">
+          <div
+            className={`rounded-xl border px-4 py-3 text-[12px] shadow-lg backdrop-blur ${
+              toast.kind === "error"
+                ? "border-red-500/30 bg-red-500/10 text-red-300"
+                : toast.kind === "success"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                  : "border-white/10 bg-surface/90 text-text-main"
+            }`}
+          >
+            {toast.message}
+          </div>
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-1">
         <h1 className="text-[14px] font-medium text-text-main">Call History</h1>
         <p className="text-[11px] text-text-muted">
@@ -213,9 +327,11 @@ export default function CallsPage() {
             </button>
             <button
               type="button"
+              onClick={() => void handleExportCsv()}
+              disabled={exporting}
               className="px-3 py-1 bg-accent text-white text-[12px] font-medium rounded-lg hover:bg-accent/90 transition-colors"
             >
-              Export CSV
+              {exporting ? "Exporting…" : "Export CSV"}
             </button>
           </div>
         </div>

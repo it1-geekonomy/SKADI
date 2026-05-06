@@ -31,6 +31,9 @@ export function CallTable({ calls, rangeSubtitle = "Last 7 days", onRowClick }: 
         <table className="w-full border-collapse">
           <thead>
             <tr>
+              <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap w-[64px]">
+                S no
+              </th>
               <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">Caller</th>
               <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">Time</th>
               <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">Duration</th>
@@ -41,19 +44,22 @@ export function CallTable({ calls, rangeSubtitle = "Last 7 days", onRowClick }: 
             </tr>
           </thead>
           <tbody>
-            {calls.map((call) => (
+            {calls.map((call, idx) => (
               <tr 
                 key={call.call_id} 
                 onClick={() => onRowClick?.(call)}
                 className="group border-b border-border last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
               >
-                <td className="px-5 py-3 text-[12px] font-mono text-text-main whitespace-nowrap">{call.caller}</td>
+                <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap tabular-nums">
+                  {idx + 1}
+                </td>
+                <td className="px-5 py-3 text-[12px] text-text-main whitespace-nowrap">{call.caller}</td>
                 <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">{call.time}</td>
-                <td className="px-5 py-3 text-[12px] font-mono text-text-main whitespace-nowrap">{call.duration}</td>
+                <td className="px-5 py-3 text-[12px] text-text-main whitespace-nowrap">{call.duration}</td>
                 <td className="px-5 py-3 whitespace-nowrap">
                   <SentimentBadge sentiment={call.sentiment} />
                 </td>
-                <td className="px-5 py-3 text-[11px] font-mono text-text-dim whitespace-nowrap">{call.to}</td>
+                <td className="px-5 py-3 text-[11px] text-text-dim whitespace-nowrap">{call.to}</td>
                 <td className="px-5 py-3 whitespace-nowrap">
                   <DirectionBadge direction={call.direction} />
                 </td>
