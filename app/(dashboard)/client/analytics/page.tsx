@@ -223,11 +223,13 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AreaLineChart
+          key={`${range}-${loading ? "loading" : "ready"}-${dailySeries.length}`}
           title="Daily call volume"
           subtitleRight={loading ? "Loading…" : `Total: ${data?.totalCalls ?? 0}`}
           points={dailySeries}
         />
         <OutcomesDonut
+          key={`donut-${range}-${loading ? "loading" : "ready"}-${data?.totalCalls ?? 0}`}
           title="Call outcomes"
           total={data?.totalCalls ?? 0}
           items={[

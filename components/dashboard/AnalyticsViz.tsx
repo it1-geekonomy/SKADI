@@ -149,10 +149,12 @@ export function OutcomesDonut({
   title,
   total,
   items,
+  animate = true,
 }: {
   title: string;
   total: number;
   items: Array<{ label: string; value: number; color: string }>;
+  animate?: boolean;
 }) {
   const size = 140;
   const stroke = 14;
@@ -188,7 +190,7 @@ export function OutcomesDonut({
             strokeWidth={stroke}
           />
           <g transform={`rotate(-90 ${c} ${c})`}>
-            {segments.map((s) =>
+            {segments.map((s, idx) =>
               s.len > 0 ? (
                 <circle
                   key={s.label}
@@ -202,6 +204,26 @@ export function OutcomesDonut({
                   strokeDashoffset={-s.off}
                   strokeLinecap="round"
                 >
+                  {animate ? (
+                    <>
+                      <animate
+                        attributeName="stroke-dasharray"
+                        from={`0 ${circ}`}
+                        to={`${s.len} ${circ - s.len}`}
+                        dur="0.9s"
+                        begin={`${idx * 0.12}s`}
+                        fill="freeze"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        from="0"
+                        to="1"
+                        dur="0.25s"
+                        begin={`${idx * 0.12}s`}
+                        fill="freeze"
+                      />
+                    </>
+                  ) : null}
                   <title>
                     {s.label}: {s.value} ({s.pct}%)
                   </title>
