@@ -43,7 +43,7 @@ export default function ClientDashboardLayout({
 
   return (
     <DashboardThemeRoot>
-      <div className="flex min-h-screen bg-bg">
+      <div className="flex flex-1 w-full min-h-screen bg-bg">
         {/* Desktop sidebar */}
         <Sidebar
           logo="SKADI"

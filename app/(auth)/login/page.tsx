@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [role, setRole] = useState<"client" | "admin">("client");
+  const [role, setRole] = useState<"client" | "admin">("admin");
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {

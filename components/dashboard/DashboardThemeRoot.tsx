@@ -14,7 +14,7 @@ export function DashboardThemeRoot({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, setThemeState] = useState<DashboardTheme>("dark");
+  const [theme, setThemeState] = useState<DashboardTheme>("light");
 
   useEffect(() => {
     try {
