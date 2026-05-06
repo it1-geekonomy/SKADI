@@ -1,27 +1,29 @@
 import React from "react";
 
 interface Call {
+  call_id: string;
   caller: string;
   time: string;
   duration: string;
   sentiment: "Positive" | "Neutral" | "Negative";
   to: string;
-  direction: "Inbound" | "Outbound" | "Web";
+  direction: "Inbound" | "Outbound";
   outcome: string;
 }
 
 interface CallTableProps {
   calls: Call[];
+  rangeSubtitle?: string;
   onRowClick?: (call: Call) => void;
 }
 
-export function CallTable({ calls, onRowClick }: CallTableProps) {
+export function CallTable({ calls, rangeSubtitle = "Last 7 days", onRowClick }: CallTableProps) {
   return (
     <div className="card bg-surface border border-border rounded-[12px] overflow-hidden font-geist">
       <div className="card-header flex items-center justify-between p-4 border-b border-border">
         <div>
           <div className="card-title text-[13px] font-medium text-text-main">Recent Calls</div>
-          <div className="card-sub text-[11px] text-text-muted mt-0.5">Last 7 days</div>
+          <div className="card-sub text-[11px] text-text-muted mt-0.5">{rangeSubtitle}</div>
         </div>
       </div>
       
@@ -39,9 +41,9 @@ export function CallTable({ calls, onRowClick }: CallTableProps) {
             </tr>
           </thead>
           <tbody>
-            {calls.map((call, idx) => (
+            {calls.map((call) => (
               <tr 
-                key={idx} 
+                key={call.call_id} 
                 onClick={() => onRowClick?.(call)}
                 className="group border-b border-border last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
               >
@@ -85,19 +87,26 @@ function DirectionBadge({ direction }: { direction: Call["direction"] }) {
   const colors = {
     Inbound: "bg-blue-500/10 text-blue-500",
     Outbound: "bg-accent/10 text-accent",
-    Web: "bg-yellow-500/10 text-yellow-500",
   };
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${colors[direction]}`}>
-      {direction === "Inbound" ? "↙" : direction === "Outbound" ? "↗" : "⬡"} {direction}
+      {direction === "Inbound" ? "↙" : "↗"} {direction}
     </span>
   );
 }
 
 function OutcomeBadge({ outcome }: { outcome: string }) {
-  const isBooked = outcome.includes("Booked");
-  const isCallback = outcome.includes("Callback");
-  const color = isBooked ? "bg-green-500/10 text-green-500" : isCallback ? "bg-yellow-500/10 text-yellow-500" : "bg-red-500/10 text-red-500";
+  const isBooked = outcome === "Appointment Booked";
+  const isCallback = outcome === "Callback Requested";
+  const isNotBooked = outcome === "Not Booked";
+
+  const color = isBooked
+    ? "bg-green-500/10 text-green-600 border border-green-500/20"
+    : isCallback
+      ? "bg-yellow-500/10 text-yellow-700 border border-yellow-500/20"
+      : isNotBooked
+        ? "bg-slate-500/10 text-slate-600 border border-slate-500/20"
+        : "bg-slate-500/10 text-slate-600 border border-slate-500/20";
   return (
     <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${color}`}>
       {outcome}

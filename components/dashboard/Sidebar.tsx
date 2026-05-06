@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -24,9 +25,18 @@ interface SidebarProps {
 export function Sidebar({ logo, sections, user }: SidebarProps) {
   return (
     <aside className="w-[220px] flex-shrink-0 bg-surface border-r border-border flex flex-col h-screen sticky top-0 font-geist">
-      <div className="p-5 text-lg font-semibold tracking-tight border-b border-border">
-        <Link href="/" className="text-text-main group">
-          Ska<span className="text-accent">di</span>
+      <div className="px-4 py-3 border-b border-border">
+        <Link href="/" className="flex items-center">
+          <div className="relative w-full max-w-[200px] h-[44px] overflow-hidden">
+            <Image
+              src="/Skadi Logo Final.png"
+              alt="Skadi"
+              fill
+              priority
+              sizes="200px"
+              className="object-cover object-center scale-[1.25]"
+            />
+          </div>
         </Link>
       </div>
 

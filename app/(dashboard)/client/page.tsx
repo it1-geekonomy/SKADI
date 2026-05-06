@@ -1,39 +1,89 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { CallTable } from "@/components/dashboard/CallTable";
 import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
 
-const SAMPLE_CALLS: any[] = [
-  { 
-    id: 'c1', caller: "+91 98765 43210", date: "04 May 2026", time: "10:14", 
-    duration: "3m 12s", sentiment: "Positive", to: "+1 934 414 6086", 
-    direction: "Inbound", outcome: "Appointment Booked", status: "Completed",
-    callId: "call_2c0f154b468d2c2de4f...82d", version: 2, cost: "$0.542",
-    tokens: "2702.75", latency: "1616ms", disconnect: "User_hangup",
-    summary: "Chetan called to schedule a consultation for renting a 2BHK apartment in JP Nagar. The agent confirmed an appointment with Divyasree for May 18th at 10:00 AM, collected Chetan's contact details, and reassured him that the booking was successful.",
-    transcript: [
-      { role: "agent", ts: "0:00", text: "Hi there, thank you for calling. This is Skadi, Divyasree's scheduling assistant. May I know your name please?" },
-      { role: "user", ts: "0:15", text: "Hi. My name is Chetan." },
-      { role: "agent", ts: "0:17", text: "Thank you, Chetan. How can I help you today?" },
-    ]
-  },
-  { caller: "+91 87654 32109", time: "04 May 2026, 09:42", duration: "1m 48s", sentiment: "Neutral", to: "+1 934 414 6086", direction: "Inbound", outcome: "Callback Requested" },
-  { caller: "+91 76543 21098", time: "03 May 2026, 16:55", duration: "0m 52s", sentiment: "Negative", to: "+1 934 414 6086", direction: "Inbound", outcome: "No Answer" },
-  { caller: "+91 65432 10987", time: "03 May 2026, 14:30", duration: "2m 07s", sentiment: "Positive", to: "+1 934 414 6086", direction: "Inbound", outcome: "Appointment Booked" },
-];
+type OverviewStats = {
+  totalCalls: number;
+  bookedCalls: number;
+  bookingRate: number;
+  avgDuration: string;
+  todayCalls: number;
+};
+
+type OverviewRow = {
+  call_id: string;
+  caller: string;
+  time: string;
+  duration: string;
+  sentiment: "Positive" | "Neutral" | "Negative";
+  to: string;
+  direction: "Inbound" | "Outbound";
+  outcome: string;
+};
+
+type CallDetail = React.ComponentProps<typeof CallDetailModal>["call"];
 
 export default function ClientOverview() {
-  const [selectedCall, setSelectedCall] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [stats, setStats] = useState<OverviewStats | null>(null);
+  const [recentCalls, setRecentCalls] = useState<OverviewRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleRowClick = (call: any) => {
-    // For demo, we use the first sample call's full data if the clicked row matches or just mock it
-    const fullCallData = SAMPLE_CALLS[0].caller === call.caller ? SAMPLE_CALLS[0] : { ...SAMPLE_CALLS[0], ...call };
-    setSelectedCall(fullCallData);
+  const [selectedCall, setSelectedCall] = useState<CallDetail | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/overview?recentLimit=7");
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error ?? "Failed to load overview");
+        }
+        if (cancelled) return;
+        setStats(data.stats ?? null);
+        setRecentCalls(data.recentCalls ?? []);
+      } catch (e) {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Failed to load overview");
+        setStats(null);
+        setRecentCalls([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleRowClick = async (call: OverviewRow) => {
+    setDetailLoading(true);
     setIsModalOpen(true);
+    setSelectedCall(null);
+    setError(null);
+    try {
+      const res = await fetch(`/api/calls/${encodeURIComponent(call.call_id)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to load call");
+      }
+      setSelectedCall(data.call ?? null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load call");
+      setIsModalOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   return (
@@ -48,17 +98,58 @@ export default function ClientOverview() {
         </Link>
       </div>
 
+      {error ? (
+        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-[12px] text-red-400">
+          {error}
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[14px]">
-        <StatsCard label="Total Calls" value="247" subValue="+18% vs last month" trend="up" />
-        <StatsCard label="Appointments Booked" value="183" subValue="74% booking rate" trend="up" />
-        <StatsCard label="Avg Call Duration" value="2:34" subValue="minutes per call" />
-        <StatsCard label="Today" value="12" subValue="calls so far" />
+        <StatsCard
+          label="Total Calls"
+          value={loading ? "—" : String(stats?.totalCalls ?? 0)}
+          subValue="Last 30 days"
+        />
+        <StatsCard
+          label="Appointments Booked"
+          value={loading ? "—" : String(stats?.bookedCalls ?? 0)}
+          subValue={
+            loading ? undefined : `${stats?.bookingRate ?? 0}% booking rate`
+          }
+          trend="up"
+        />
+        <StatsCard
+          label="Avg Call Duration"
+          value={loading ? "—" : stats?.avgDuration ?? "0:00"}
+          subValue="minutes per call"
+        />
+        <StatsCard
+          label="Today"
+          value={loading ? "—" : String(stats?.todayCalls ?? 0)}
+          subValue="calls so far"
+        />
       </div>
 
-      <CallTable calls={SAMPLE_CALLS} onRowClick={handleRowClick} />
+      {loading ? (
+        <div className="p-8 text-center text-[12px] text-text-muted">
+          Loading overview…
+        </div>
+      ) : (
+        <CallTable
+          calls={recentCalls}
+          rangeSubtitle="Last 7 days"
+          onRowClick={handleRowClick}
+        />
+      )}
+
+      {detailLoading && isModalOpen && !selectedCall ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 text-[12px] text-text-muted">
+          Loading call…
+        </div>
+      ) : null}
 
       <CallDetailModal 
-        isOpen={isModalOpen} 
+        isOpen={isModalOpen && Boolean(selectedCall)} 
         onClose={() => setIsModalOpen(false)} 
         call={selectedCall} 
       />

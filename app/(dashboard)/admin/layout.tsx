@@ -3,6 +3,7 @@
 import React from "react";
 import { Sidebar, DashboardIcon, HistoryIcon, TranscriptIcon, AnalyticsIcon, SettingsIcon, UsersIcon } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
+import { DashboardThemeRoot } from "@/components/dashboard/DashboardThemeRoot";
 import { usePathname } from "next/navigation";
 
 export default function AdminDashboardLayout({
@@ -43,19 +44,19 @@ export default function AdminDashboardLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-bg">
+    <DashboardThemeRoot>
       <Sidebar 
         logo="SKADI" 
         sections={sections} 
         user={{ name: "Admin", role: "Administrator", initials: "AD" }} 
       />
       
-      <main className="flex-1 flex flex-col min-w-0 bg-bg">
+      <main className="flex-1 flex flex-col min-w-0 bg-bg min-h-screen">
         <Topbar title={getTitle()} />
         <div className="flex-1 overflow-y-auto">
           {children}
         </div>
       </main>
-    </div>
+    </DashboardThemeRoot>
   );
 }

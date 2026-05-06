@@ -6,7 +6,7 @@ import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
 
 const FULL_CALL_HISTORY: any[] = [
   { 
-    id: 'c1', caller: "+91 98765 43210", date: "04 May 2026", time: "10:14", 
+    id: 'c1', call_id: "mock-c1", agentLine: "Skadi (agent_dc2fab…902) · Version: 2", callStatusLabel: "Ended", recordingUrl: null, caller: "+91 98765 43210", date: "04 May 2026", time: "10:14", 
     duration: "3m 12s", sentiment: "Positive", to: "+1 934 414 6086", 
     direction: "Inbound", outcome: "Appointment Booked", status: "Completed",
     callId: "call_2c0f154b468d2c2de4f...82d", version: 2, cost: "$0.542",
@@ -18,7 +18,7 @@ const FULL_CALL_HISTORY: any[] = [
       { role: "agent", ts: "0:17", text: "Thank you, Chetan. How can I help you today?" },
     ]
   },
-  { caller: "+91 87654 32109", time: "04 May 2026, 09:42", duration: "1m 48s", sentiment: "Neutral", to: "+1 934 414 6086", direction: "Inbound", outcome: "Callback Requested" },
+  { call_id: "mock-c2", caller: "+91 87654 32109", time: "04 May 2026, 09:42", duration: "1m 48s", sentiment: "Neutral", to: "+1 934 414 6086", direction: "Inbound", outcome: "Callback Requested" },
 ];
 
 export default function CallsPage() {
@@ -45,7 +45,7 @@ export default function CallsPage() {
             <FilterButton label="All Outcomes" active={filter === "all"} onClick={() => setFilter("all")} />
             <FilterButton label="Booked" active={filter === "booked"} onClick={() => setFilter("booked")} />
             <FilterButton label="Callback" active={filter === "callback"} onClick={() => setFilter("callback")} />
-            <FilterButton label="Missed" active={filter === "missed"} onClick={() => setFilter("missed")} />
+            <FilterButton label="Not Booked" active={filter === "missed"} onClick={() => setFilter("missed")} />
           </div>
           
           <div className="flex items-center gap-4">

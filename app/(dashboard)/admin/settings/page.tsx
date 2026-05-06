@@ -55,7 +55,7 @@ export default function SettingsPage() {
               onToggle={() => toggle('booking')} 
             />
             <ToggleRow 
-              label="Missed Call" 
+              label="No Booking" 
               active={notifications.missed} 
               onToggle={() => toggle('missed')} 
             />

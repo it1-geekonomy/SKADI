@@ -6,7 +6,7 @@ import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
 
 const TRANSCRIPT_LOGS: any[] = [
   { 
-    id: 't1', caller: "+91 98765 43210", date: "04 May 2026", time: "10:14", 
+    id: 't1', call_id: "mock-t1", agentLine: "Skadi (agent_dc2fab…902) · Version: 2", callStatusLabel: "Ended", recordingUrl: null, caller: "+91 98765 43210", date: "04 May 2026", time: "10:14", 
     duration: "3m 12s", sentiment: "Positive", to: "+1 934 414 6086", 
     direction: "Inbound", outcome: "Appointment Booked", status: "Completed",
     callId: "call_2c0f154b468d2c2de4f...82d", version: 2, cost: "$0.542",
@@ -18,8 +18,8 @@ const TRANSCRIPT_LOGS: any[] = [
       { role: "agent", ts: "0:17", text: "Thank you, Chetan. How can I help you today?" },
     ]
   },
-  { caller: "+91 87654 32109", time: "04 May 2026, 09:42", duration: "1m 48s", sentiment: "Neutral", to: "+1 934 414 6086", direction: "Inbound", outcome: "Callback Requested" },
-  { caller: "+91 76543 21098", time: "03 May 2026, 16:55", duration: "0m 52s", sentiment: "Negative", to: "+1 934 414 6086", direction: "Inbound", outcome: "No Answer" },
+  { call_id: "mock-t2", caller: "+91 87654 32109", time: "04 May 2026, 09:42", duration: "1m 48s", sentiment: "Neutral", to: "+1 934 414 6086", direction: "Inbound", outcome: "Callback Requested" },
+  { call_id: "mock-t3", caller: "+91 76543 21098", time: "03 May 2026, 16:55", duration: "0m 52s", sentiment: "Negative", to: "+1 934 414 6086", direction: "Inbound", outcome: "Not Booked" },
 ];
 
 export default function TranscriptsPage() {

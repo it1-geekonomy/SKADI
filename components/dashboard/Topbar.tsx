@@ -3,12 +3,15 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 
+import { useDashboardTheme } from "@/components/dashboard/dashboard-theme-context";
+
 interface TopbarProps {
   title: string;
 }
 
 export function Topbar({ title }: TopbarProps) {
   const router = useRouter();
+  const { theme, toggleTheme } = useDashboardTheme();
 
   const handleSignOut = () => {
     router.push("/login");
@@ -19,6 +22,15 @@ export function Topbar({ title }: TopbarProps) {
       <h2 className="text-[14px] font-medium text-text-main">{title}</h2>
       
       <div className="topbar-right flex items-center gap-2">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="btn-sm p-2 rounded-[8px] bg-surface-hover border border-border text-text-dim hover:text-text-main transition-colors"
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          title={theme === "dark" ? "Light mode" : "Dark mode"}
+        >
+          {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+        </button>
         <span className="badge badge-live inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 text-green-500 text-[11px] font-medium">
           <span className="dot w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
           Live
@@ -31,5 +43,42 @@ export function Topbar({ title }: TopbarProps) {
         </button>
       </div>
     </header>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
   );
 }

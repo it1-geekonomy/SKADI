@@ -14,10 +14,12 @@
   --font-bebas: var(--font-bebas);
   --font-inter: var(--font-inter);
 
-  /* Dashboard Theme (Mockup) */
+  /* Dashboard — default dark */
   --color-bg: #0a0a0a;
   --color-surface: #111111;
   --color-surface-hover: #1a1a1a;
+  --color-surface2: #1c1c1c;
+  --color-surface3: #252525;
   --color-border: #2a2a2a;
   --color-accent: #7c6df0;
   --color-accent-glow: rgba(124, 109, 240, 0.15);
@@ -26,6 +28,26 @@
   --color-text-muted: #555555;
   --font-geist: "Geist", sans-serif;
   --font-mono: "Geist Mono", monospace;
+}
+
+/* Dashboard light mode (scoped to data-dashboard-theme on layout root) */
+[data-dashboard-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f4f6;
+  --color-surface: #ffffff;
+  --color-surface-hover: #ececf1;
+  --color-surface2: #e2e2e9;
+  --color-surface3: #d8d8e0;
+  --color-border: #e0e0e8;
+  --color-accent: #5b4fcf;
+  --color-accent-glow: rgba(91, 79, 207, 0.14);
+  --color-text-main: #18181b;
+  --color-text-dim: #52525b;
+  --color-text-muted: #71717a;
+}
+
+[data-dashboard-theme="dark"] {
+  color-scheme: dark;
 }
 
 html { scroll-behavior: smooth; }
@@ -71,3 +93,47 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 .animate-fade-up-4 { opacity: 0; animation: fadeUp 0.7s 0.45s forwards; }
 .animate-fade-in-1 { opacity: 0; animation: fadeInAnim 1s 0.5s forwards; }
 .animate-pulse-dot  { animation: pulseDot 2s infinite; }
+
+@keyframes skadiLineDraw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes skadiAreaFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes skadiPointPop {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.skadi-chart-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: skadiLineDraw 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.skadi-chart-area {
+  transform-origin: center;
+  animation: skadiAreaFade 650ms ease-out forwards;
+}
+
+.skadi-chart-point {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: skadiPointPop 420ms ease-out forwards;
+  animation-delay: 650ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skadi-chart-line,
+  .skadi-chart-area,
+  .skadi-chart-point {
+    animation: none !important;
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
