@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Bebas_Neue, Inter, Poppins } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 // import AnimatedGifFavicon from "../components/AnimatedGifFavicon";
 
@@ -12,6 +13,12 @@ const bebasNeue = Bebas_Neue({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -34,21 +41,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-01BZCT48LM"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-
-              gtag('config', 'G-01BZCT48LM');
-            `,
-          }}
-        />
         <meta name="google-site-verification" content="5D51veGcsxokTotZ8O8SjI9bnbHfojWUeXTVps36lX8" />
       </head>
-      <body className={`${bebasNeue.variable} ${inter.variable} font-inter bg-parchment text-obsidian font-normal`}>
+      <body
+        className={`${bebasNeue.variable} ${inter.variable} ${poppins.variable} font-inter bg-parchment text-obsidian font-normal`}
+      >
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-01BZCT48LM"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-01BZCT48LM');
+          `}
+        </Script>
         {/* <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" /> */}
         {children}
       </body>
