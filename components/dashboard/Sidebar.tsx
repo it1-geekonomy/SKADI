@@ -20,21 +20,28 @@ interface SidebarProps {
     role: string;
     initials: string;
   };
+  className?: string;
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ logo, sections, user }: SidebarProps) {
+export function Sidebar({ logo, sections, user, className, onNavigate }: SidebarProps) {
   return (
-    <aside className="w-[220px] flex-shrink-0 bg-surface border-r border-border flex flex-col h-screen sticky top-0 font-geist">
+    <aside
+      className={[
+        "w-[220px] flex-shrink-0 bg-surface border-r border-border flex flex-col font-geist",
+        className ?? "h-screen sticky top-0",
+      ].join(" ")}
+    >
       <div className="px-4 py-3 border-b border-border">
         <Link href="/" className="flex items-center">
-          <div className="relative w-full max-w-[200px] h-[44px] overflow-hidden">
+          <div className="relative w-full max-w-[200px] h-[45px] overflow-hidden">
             <Image
               src="/Skadi Logo Final.png"
               alt="Skadi"
               fill
               priority
-              sizes="200px"
-              className="object-cover object-center scale-[1.25]"
+              sizes="300px"
+              className="object-cover object-center scale-[1.95]"
             />
           </div>
         </Link>
@@ -48,7 +55,7 @@ export function Sidebar({ logo, sections, user }: SidebarProps) {
             </h3>
             <nav className="space-y-1.5">
               {section.items.map((item, itemIdx) => (
-                <SidebarNavItem key={itemIdx} {...item} />
+                <SidebarNavItem key={itemIdx} {...item} onNavigate={onNavigate} />
               ))}
             </nav>
           </div>
@@ -70,13 +77,19 @@ export function Sidebar({ logo, sections, user }: SidebarProps) {
   );
 }
 
-function SidebarNavItem({ label, href, icon }: NavItem) {
+function SidebarNavItem({
+  label,
+  href,
+  icon,
+  onNavigate,
+}: NavItem & { onNavigate?: () => void }) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={`flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all text-[13px] ${
         isActive
           ? "bg-accent/10 border border-accent/30 text-accent font-semibold"
