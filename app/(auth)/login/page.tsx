@@ -87,7 +87,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
-                  defaultValue="password"
+                  defaultValue={role === "admin" ? "Skadi@2026!" : "password"}
                   className="w-full bg-white border border-[#d9d2c7] rounded-[8px] px-3.5 py-2.5 text-[#1a1a18] text-[13px] outline-none focus:border-[#1c4532] transition-colors"
                 />
               </div>
@@ -103,8 +103,8 @@ export default function LoginPage() {
             <div className="mt-4 text-[10px] text-[#9a9a96] flex items-center justify-between">
               <span>Demo credentials</span>
               <span className="font-mono">
-                {role === "admin" ? "admin@skadi.ai" : "divyasree@example.com"} ·
-                ••••••••
+                {role === "admin" ? "admin@skadi.ai" : "divyasree@example.com"} ·{" "}
+                {role === "admin" ? "Skadi@2026!" : "••••••••"}
               </span>
             </div>
           </div>

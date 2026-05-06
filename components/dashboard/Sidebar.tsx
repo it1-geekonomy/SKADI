@@ -44,16 +44,16 @@ export function Sidebar({
         className ?? "h-screen sticky top-0",
       ].join(" ")}
     >
-      <div className="px-4 py-3 border-b border-border">
-        <Link href={logoHref} className="flex items-center" onClick={onNavigate}>
-          <div className="relative w-full max-w-[195px] h-[50px] overflow-hidden">
+      <div className="px-2 py-2 border-b border-border">
+        <Link href={logoHref} className="flex items-center w-full" onClick={onNavigate}>
+          <div className="relative w-full max-w-[200px] mx-auto h-[60px] overflow-hidden rounded-[5px]">
             <Image
               src={src}
               alt={logo || "Skadi"}
               fill
               priority
-              sizes="300px"
-              className="object-contain object-left"
+              sizes="180px"
+              className="object-cover object-center"
             />
           </div>
         </Link>
