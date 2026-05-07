@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  DASHBOARD_TIME_ZONE,
+  startOfDashboardMonthMs,
+  startOfPreviousDashboardMonthMs,
+} from '@/lib/dashboard-time';
 import { connectMongo } from '@/lib/mongodb';
 import { getRangeBounds } from '@/lib/retell-call-map';
 import { Call } from '@/models/Call';
@@ -13,14 +18,12 @@ function fmtDurationMMSS(seconds: number) {
   return `${m}:${r.toString().padStart(2, '0')}`;
 }
 
-function startOfThisMonthUtc() {
-  const d = new Date();
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1, 0, 0, 0, 0);
+function startOfThisMonth() {
+  return startOfDashboardMonthMs();
 }
 
-function startOfPrevMonthUtc() {
-  const d = new Date();
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - 1, 1, 0, 0, 0, 0);
+function startOfPrevMonth() {
+  return startOfPreviousDashboardMonthMs();
 }
 
 function basePhoneFilter(startMs: number, endMs: number) {
@@ -39,16 +42,16 @@ export async function GET(request: NextRequest) {
     const endMs = Date.now();
     const { startMs } =
       range === 'month'
-        ? { startMs: startOfThisMonthUtc() }
+        ? { startMs: startOfThisMonth() }
         : getRangeBounds(range);
 
     const filter = basePhoneFilter(startMs, endMs);
 
     const prev = (() => {
       if (range === 'month') {
-        const startThis = startOfThisMonthUtc();
+        const startThis = startOfThisMonth();
         return {
-          startPrev: startOfPrevMonthUtc(),
+          startPrev: startOfPrevMonth(),
           endPrev: startThis,
         };
       }
@@ -67,7 +70,11 @@ export async function GET(request: NextRequest) {
         {
           $group: {
             _id: {
-              $dateToString: { format: '%Y-%m-%d', date: '$start_time' },
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: '$start_time',
+                timezone: DASHBOARD_TIME_ZONE,
+              },
             },
             count: { $sum: 1 },
           },
@@ -84,7 +91,17 @@ export async function GET(request: NextRequest) {
       ]),
       Call.aggregate([
         { $match: filter },
-        { $group: { _id: { $hour: '$start_time' }, count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: {
+              $hour: {
+                date: '$start_time',
+                timezone: DASHBOARD_TIME_ZONE,
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
         { $sort: { count: -1, _id: 1 } },
         { $limit: 1 },
       ]),
