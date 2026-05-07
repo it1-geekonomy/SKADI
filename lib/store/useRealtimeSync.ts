@@ -10,6 +10,26 @@ type CallsChangedPayload = {
   call_id?: string;
 };
 
+const FALLBACK_REFRESH_MS =
+  Number.parseInt(process.env.NEXT_PUBLIC_REALTIME_FALLBACK_MS ?? "", 10) ||
+  30_000;
+
+function invalidateDashboardData(
+  dispatch: ReturnType<typeof useAppDispatch>,
+  callId?: string
+) {
+  const tags: Parameters<typeof api.util.invalidateTags>[0] = [
+    { type: "Calls", id: "LIST" },
+    "Overview",
+    { type: "Analytics", id: "LIST" },
+  ];
+  if (callId) {
+    tags.push({ type: "Call", id: callId });
+  }
+
+  dispatch(api.util.invalidateTags(tags));
+}
+
 /**
  * Subscribe to the server's SSE stream and refresh RTK Query caches whenever
  * the backend reports new/changed call data (Retell webhook or manual sync).
@@ -23,8 +43,9 @@ type CallsChangedPayload = {
  *     queries (calls list, overview, analytics) refetch in the background.
  *     If a `call_id` is included, the matching call-detail cache entry is
  *     invalidated too.
- *   - EventSource auto-reconnects with exponential backoff on network blips,
- *     so we don't hand-roll retry logic.
+ *   - EventSource auto-reconnects with exponential backoff on network blips.
+ *   - A 30s fallback invalidation keeps auto-sync working on Vercel/serverless
+ *     where webhooks and SSE connections can land on different instances.
  */
 export function useRealtimeSync(): void {
   const dispatch = useAppDispatch();
@@ -44,21 +65,19 @@ export function useRealtimeSync(): void {
         // ignore malformed payloads
       }
 
-      const tags: Parameters<typeof api.util.invalidateTags>[0] = [
-        { type: "Calls", id: "LIST" },
-        "Overview",
-        { type: "Analytics", id: "LIST" },
-      ];
-      if (parsed?.call_id) {
-        tags.push({ type: "Call", id: parsed.call_id });
-      }
-
-      dispatch(api.util.invalidateTags(tags));
+      invalidateDashboardData(dispatch, parsed?.call_id);
     };
 
     es.addEventListener("calls-changed", handleCallsChanged as EventListener);
 
+    const fallbackRefresh = window.setInterval(() => {
+      if (!document.hidden) {
+        invalidateDashboardData(dispatch);
+      }
+    }, FALLBACK_REFRESH_MS);
+
     return () => {
+      window.clearInterval(fallbackRefresh);
       es.removeEventListener(
         "calls-changed",
         handleCallsChanged as EventListener
