@@ -15,9 +15,15 @@ interface CallTableProps {
   calls: Call[];
   rangeSubtitle?: string;
   onRowClick?: (call: Call) => void;
+  startIndex?: number;
 }
 
-export function CallTable({ calls, rangeSubtitle = "Last 7 days", onRowClick }: CallTableProps) {
+export function CallTable({
+  calls,
+  rangeSubtitle = "Last 7 days",
+  onRowClick,
+  startIndex = 0,
+}: CallTableProps) {
   return (
     <div className="card bg-surface border border-border rounded-[12px] overflow-hidden font-geist">
       <div className="card-header flex items-center justify-between p-4 border-b border-border">
@@ -51,7 +57,7 @@ export function CallTable({ calls, rangeSubtitle = "Last 7 days", onRowClick }: 
                 className="group border-b border-border last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
               >
                 <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap tabular-nums">
-                  {idx + 1}
+                  {startIndex + idx + 1}
                 </td>
                 <td className="px-5 py-3 text-[12px] text-text-main whitespace-nowrap">{call.caller}</td>
                 <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">{call.time}</td>

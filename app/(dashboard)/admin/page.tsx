@@ -15,7 +15,7 @@ export default function AdminOverview() {
     data: overview,
     isLoading: loading,
     error,
-  } = useGetOverviewQuery({ recentLimit: 7 });
+  } = useGetOverviewQuery({ recentLimit: 10 });
 
   const stats = overview?.stats ?? null;
   const recentCalls = overview?.recentCalls ?? [];
