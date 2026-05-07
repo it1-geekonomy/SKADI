@@ -12,6 +12,7 @@ import {
 
 type TimeRange = "30d" | "7d" | "today";
 type OutcomeFilter = "all" | "booked" | "callback" | "missed";
+const PAGE_SIZE = 15;
 
 type TableCall = {
   call_id: string;
@@ -57,19 +58,26 @@ function rangeSubtitle(range: TimeRange): string {
 export default function CallsPage() {
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilter>("all");
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [page, setPage] = useState(1);
+  const skip = (page - 1) * PAGE_SIZE;
 
   const {
     data: callsData,
     isLoading: loading,
+    isFetching,
     error: listError,
   } = useGetCallsQuery({
     range: timeRange,
     outcome: outcomeFilter,
-    limit: 50,
-    skip: 0,
+    limit: PAGE_SIZE,
+    skip,
   });
 
   const calls: TableCall[] = (callsData?.calls as TableCall[]) ?? [];
+  const totalCalls = callsData?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCalls / PAGE_SIZE));
+  const fromRow = totalCalls === 0 ? 0 : skip + 1;
+  const toRow = Math.min(skip + calls.length, totalCalls);
 
   const [syncCalls, { isLoading: syncing }] = useSyncCallsMutation();
   const [fetchCallsForExport] = useLazyGetCallsQuery();
@@ -259,22 +267,34 @@ export default function CallsPage() {
             <FilterButton
               label="All Outcomes"
               active={outcomeFilter === "all"}
-              onClick={() => setOutcomeFilter("all")}
+              onClick={() => {
+                setOutcomeFilter("all");
+                setPage(1);
+              }}
             />
             <FilterButton
               label="Booked"
               active={outcomeFilter === "booked"}
-              onClick={() => setOutcomeFilter("booked")}
+              onClick={() => {
+                setOutcomeFilter("booked");
+                setPage(1);
+              }}
             />
             <FilterButton
               label="Callback"
               active={outcomeFilter === "callback"}
-              onClick={() => setOutcomeFilter("callback")}
+              onClick={() => {
+                setOutcomeFilter("callback");
+                setPage(1);
+              }}
             />
             <FilterButton
               label="Not Booked"
               active={outcomeFilter === "missed"}
-              onClick={() => setOutcomeFilter("missed")}
+              onClick={() => {
+                setOutcomeFilter("missed");
+                setPage(1);
+              }}
             />
           </div>
 
@@ -283,17 +303,26 @@ export default function CallsPage() {
               <FilterButton
                 label="Last 30 Days"
                 active={timeRange === "30d"}
-                onClick={() => setTimeRange("30d")}
+                onClick={() => {
+                  setTimeRange("30d");
+                  setPage(1);
+                }}
               />
               <FilterButton
                 label="Last 7 Days"
                 active={timeRange === "7d"}
-                onClick={() => setTimeRange("7d")}
+                onClick={() => {
+                  setTimeRange("7d");
+                  setPage(1);
+                }}
               />
               <FilterButton
                 label="Today"
                 active={timeRange === "today"}
-                onClick={() => setTimeRange("today")}
+                onClick={() => {
+                  setTimeRange("today");
+                  setPage(1);
+                }}
               />
             </div>
             {/* Manual sync hidden for now; webhook auto-sync keeps calls updated. */}
@@ -325,8 +354,39 @@ export default function CallsPage() {
             calls={calls}
             rangeSubtitle={rangeSubtitle(timeRange)}
             onRowClick={handleRowClick}
+            startIndex={skip}
           />
         )}
+
+        {!loading ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-t border-border bg-surface/50">
+            <div className="text-[11px] text-text-muted">
+              Showing {fromRow}-{toRow} of {totalCalls} call(s)
+              {isFetching ? " · Refreshing…" : ""}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || isFetching}
+                className="px-3 py-1 rounded-lg border border-border bg-surface-hover text-[11px] font-medium text-text-main hover:bg-surface3 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Previous
+              </button>
+              <span className="px-2 text-[11px] text-text-muted">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || isFetching}
+                className="px-3 py-1 rounded-lg border border-border bg-surface-hover text-[11px] font-medium text-text-main hover:bg-surface3 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {detailLoading && isModalOpen && !selectedCall ? (
