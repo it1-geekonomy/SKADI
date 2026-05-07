@@ -1,90 +1,46 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { CallTable } from "@/components/dashboard/CallTable";
 import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
-
-type OverviewStats = {
-  totalCalls: number;
-  bookedCalls: number;
-  bookingRate: number;
-  avgDuration: string;
-  todayCalls: number;
-};
-
-type OverviewRow = {
-  call_id: string;
-  caller: string;
-  time: string;
-  duration: string;
-  sentiment: "Positive" | "Neutral" | "Negative";
-  to: string;
-  direction: "Inbound" | "Outbound";
-  outcome: string;
-};
+import { useGetOverviewQuery } from "@/lib/store/endpoints/overviewApi";
+import { useGetCallByIdQuery } from "@/lib/store/endpoints/callsApi";
 
 type CallDetail = React.ComponentProps<typeof CallDetailModal>["call"];
 
 export default function ClientOverview() {
-  const [stats, setStats] = useState<OverviewStats | null>(null);
-  const [recentCalls, setRecentCalls] = useState<OverviewRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: overview,
+    isLoading: loading,
+    error,
+  } = useGetOverviewQuery({ recentLimit: 7 });
 
-  const [selectedCall, setSelectedCall] = useState<CallDetail | null>(null);
+  const stats = overview?.stats ?? null;
+  const recentCalls = overview?.recentCalls ?? [];
+
+  const [activeCallId, setActiveCallId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/overview?recentLimit=7");
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to load overview");
-        }
-        if (cancelled) return;
-        setStats(data.stats ?? null);
-        setRecentCalls(data.recentCalls ?? []);
-      } catch (e) {
-        if (cancelled) return;
-        setError(e instanceof Error ? e.message : "Failed to load overview");
-        setStats(null);
-        setRecentCalls([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    void run();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const {
+    data: detailData,
+    isFetching: detailLoading,
+    error: detailError,
+  } = useGetCallByIdQuery(activeCallId ?? "", { skip: !activeCallId });
 
-  const handleRowClick = async (call: OverviewRow) => {
-    setDetailLoading(true);
+  const selectedCall: CallDetail | null = detailData?.call ?? null;
+
+  const handleRowClick = (call: { call_id: string }) => {
+    setActiveCallId(call.call_id);
     setIsModalOpen(true);
-    setSelectedCall(null);
-    setError(null);
-    try {
-      const res = await fetch(`/api/calls/${encodeURIComponent(call.call_id)}`);
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Failed to load call");
-      }
-      setSelectedCall(data.call ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load call");
-      setIsModalOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
   };
+
+  const errorMessage = error
+    ? "Failed to load overview"
+    : detailError
+      ? "Failed to load call"
+      : null;
 
   return (
     <div className="p-6 space-y-6 font-geist bg-bg min-h-full">
@@ -98,9 +54,9 @@ export default function ClientOverview() {
         </Link>
       </div>
 
-      {error ? (
+      {errorMessage ? (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-[12px] text-red-400">
-          {error}
+          {errorMessage}
         </div>
       ) : null}
 
@@ -148,10 +104,10 @@ export default function ClientOverview() {
         </div>
       ) : null}
 
-      <CallDetailModal 
-        isOpen={isModalOpen && Boolean(selectedCall)} 
-        onClose={() => setIsModalOpen(false)} 
-        call={selectedCall} 
+      <CallDetailModal
+        isOpen={isModalOpen && Boolean(selectedCall)}
+        onClose={() => setIsModalOpen(false)}
+        call={selectedCall}
       />
     </div>
   );

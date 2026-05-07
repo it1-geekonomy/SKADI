@@ -1,7 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
+import {
+  useGetCallByIdQuery,
+  useGetCallsQuery,
+} from "@/lib/store/endpoints/callsApi";
 
 type TimeRange = "30d" | "7d" | "today";
 type OutcomeFilter = "all" | "booked" | "callback" | "missed";
@@ -33,56 +37,37 @@ function rangeSubtitle(range: TimeRange): string {
 export default function TranscriptsPage() {
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilter>("all");
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
-  const [calls, setCalls] = useState<TableCall[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCall, setSelectedCall] = useState<CallDetail | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
+
+  const {
+    data: callsData,
+    isLoading: loading,
+    error: listError,
+  } = useGetCallsQuery({
+    range: timeRange,
+    outcome: outcomeFilter,
+    limit: 50,
+    skip: 0,
+  });
+  const filteredCalls: TableCall[] = (callsData?.calls as TableCall[]) ?? [];
+
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const loadCalls = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({
-        limit: "50",
-        skip: "0",
-        range: timeRange,
-        outcome: outcomeFilter,
-      });
-      const res = await fetch(`/api/calls?${params}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to load calls");
-      setCalls(data.calls ?? []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load calls");
-      setCalls([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [outcomeFilter, timeRange]);
+  const {
+    data: detailData,
+    isFetching: detailLoading,
+    error: detailError,
+  } = useGetCallByIdQuery(activeId ?? "", { skip: !activeId });
 
-  useEffect(() => {
-    void loadCalls();
-  }, [loadCalls]);
+  const selectedCall: CallDetail | null = detailData?.call ?? null;
 
-  const filteredCalls = useMemo(() => calls, [calls]);
+  const error = listError
+    ? "Failed to load calls"
+    : detailError
+      ? "Failed to load transcript"
+      : null;
 
-  const handleRowClick = async (call: TableCall) => {
-    setDetailLoading(true);
+  const handleRowClick = (call: TableCall) => {
     setActiveId(call.call_id);
-    try {
-      const res = await fetch(`/api/calls/${encodeURIComponent(call.call_id)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to load transcript");
-      setSelectedCall(data.call ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load transcript");
-      setSelectedCall(null);
-      setActiveId(null);
-    } finally {
-      setDetailLoading(false);
-    }
   };
 
   return (
@@ -136,7 +121,7 @@ export default function TranscriptsPage() {
                     <button
                       key={c.call_id}
                       type="button"
-                      onClick={() => void handleRowClick(c)}
+                      onClick={() => handleRowClick(c)}
                       className={`w-full text-left px-4 py-3 border-b border-border hover:bg-surface-hover transition-colors ${
                         active ? "bg-surface2" : "bg-transparent"
                       }`}
@@ -180,7 +165,7 @@ export default function TranscriptsPage() {
                   </div>
                 </div>
               </div>
-            ) : detailLoading ? (
+            ) : detailLoading && !selectedCall ? (
               <div className="h-full min-h-[380px] flex items-center justify-center text-[12px] text-text-muted">
                 Loading transcript…
               </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Inter, Poppins } from "next/font/google";
 import Script from "next/script";
+import StoreProvider from "@/lib/store/StoreProvider";
 import "./globals.css";
 // import AnimatedGifFavicon from "../components/AnimatedGifFavicon";
 
@@ -59,7 +60,7 @@ export default function RootLayout({
           `}
         </Script>
         {/* <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" /> */}
-        {children}
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

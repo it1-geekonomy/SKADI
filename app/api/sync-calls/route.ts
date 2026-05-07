@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 
 import { connectMongo } from '@/lib/mongodb';
 import { Call } from '@/models/Call';
-import { deriveOutcome, type OutcomeSource } from '@/utils/deriveOutcome';
+import {
+  toCallFields,
+  toCallUpdateSet,
+  type RetellCallItem,
+} from '@/lib/retell-mapper';
+import { emitCallsChanged } from '@/lib/realtime/event-bus';
 
 export const runtime = 'nodejs';
 
@@ -13,69 +18,6 @@ type RetellListResponse = {
   has_more?: boolean;
   pagination_key?: string;
 };
-
-type RetellCallItem = {
-  call_id?: string;
-  call_type?: string;
-  from_number?: string;
-  to_number?: string;
-  direction?: 'inbound' | 'outbound';
-  start_timestamp?: number;
-  duration_ms?: number;
-  call_analysis?: OutcomeSource['call_analysis'];
-  call_summary?: string | null;
-};
-
-function mapSentiment(
-  raw: string | null | undefined
-): 'Positive' | 'Neutral' | 'Negative' {
-  if (raw === 'Positive' || raw === 'Neutral' || raw === 'Negative') {
-    return raw;
-  }
-  return 'Neutral';
-}
-
-function toCallFields(item: RetellCallItem) {
-  const callId = item.call_id;
-  if (!callId) {
-    return null;
-  }
-
-  if (item.call_type === 'web_call') {
-    return null;
-  }
-
-  const startMs = item.start_timestamp;
-  const start_time =
-    typeof startMs === 'number' && !Number.isNaN(startMs)
-      ? new Date(startMs)
-      : new Date();
-
-  const duration_ms = item.duration_ms ?? 0;
-  const duration_sec = Math.max(0, Math.round(duration_ms / 1000));
-
-  const sentiment = mapSentiment(item.call_analysis?.user_sentiment);
-
-  const direction: 'inbound' | 'outbound' =
-    item.direction === 'outbound' ? 'outbound' : 'inbound';
-
-  const outcome = deriveOutcome({
-    call_analysis: item.call_analysis,
-    call_summary: item.call_summary,
-  });
-
-  return {
-    call_id: callId,
-    call_type: 'phone_call' as const,
-    from_number: item.from_number ?? '',
-    to_number: item.to_number ?? '',
-    start_time,
-    duration_sec,
-    sentiment,
-    direction,
-    outcome,
-  };
-}
 
 async function fetchRetellPage(
   apiKey: string,
@@ -151,30 +93,18 @@ export async function POST() {
             updateOne: {
               filter: { call_id: fields.call_id },
               update: {
-                $set: {
-                  call_type: fields.call_type,
-                  from_number: fields.from_number,
-                  to_number: fields.to_number,
-                  start_time: fields.start_time,
-                  duration_sec: fields.duration_sec,
-                  sentiment: fields.sentiment,
-                  direction: fields.direction,
-                  outcome: fields.outcome,
-                },
+                $set: toCallUpdateSet(fields),
                 $setOnInsert: { created_at: new Date() },
               },
               upsert: true,
             },
           };
         })
-        .filter(
-          (op): op is NonNullable<typeof op> => op !== null
-        );
+        .filter((op): op is NonNullable<typeof op> => op !== null);
 
       if (ops.length > 0) {
         const res = await Call.bulkWrite(ops, { ordered: false });
         inserted += res.upsertedCount ?? 0;
-        // matchedCount includes both updated and unchanged existing docs
         const matchedExisting = res.matchedCount ?? 0;
         const modifiedExisting = res.modifiedCount ?? 0;
         updated += modifiedExisting;
@@ -190,6 +120,11 @@ export async function POST() {
       }
     } while (true);
 
+    // Notify any other connected dashboards so they refresh too.
+    if (inserted > 0 || updated > 0 || (removedWeb.deletedCount ?? 0) > 0) {
+      emitCallsChanged({ reason: 'sync' });
+    }
+
     return NextResponse.json({
       ok: true,
       fetched: retellItems,
@@ -203,8 +138,7 @@ export async function POST() {
     });
   } catch (error) {
     console.error('[sync-calls]', error);
-    const message =
-      error instanceof Error ? error.message : 'Sync failed';
+    const message = error instanceof Error ? error.message : 'Sync failed';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
