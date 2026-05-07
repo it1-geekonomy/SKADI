@@ -1,32 +1,11 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AreaLineChart, OutcomesDonut } from "@/components/dashboard/AnalyticsViz";
 import { StatsCard } from "@/components/dashboard/StatsCard";
+import { useGetAnalyticsQuery } from "@/lib/store/endpoints/analyticsApi";
 
 type RangeKey = "30d" | "7d" | "month";
-
-type AnalyticsPayload = {
-  range: string;
-  totalCalls: number;
-  outcomes: {
-    booked: number;
-    callback: number;
-    notBooked: number;
-  };
-  previous?: {
-    totalCalls: number;
-    outcomes: {
-      booked: number;
-      callback: number;
-      notBooked: number;
-    };
-    avgDuration: string;
-  };
-  daily: Array<{ _id: string; count: number }>;
-  peakHour: string;
-  avgDuration: string;
-};
 
 function percent(part: number, total: number) {
   if (!total) return 0;
@@ -54,54 +33,22 @@ function trendFromDelta(delta: number, inverse?: boolean) {
 
 export default function AnalyticsPage() {
   const [range, setRange] = useState<RangeKey>("30d");
-  const [data, setData] = useState<AnalyticsPayload | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    async function run() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`/api/analytics?range=${range}`);
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error ?? "Failed to load analytics");
-        if (!cancelled) setData(json);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : "Failed to load analytics");
-        if (!cancelled) setData(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    void run();
-    return () => {
-      cancelled = true;
-    };
-  }, [range]);
+  const {
+    data,
+    isLoading: loading,
+    error: queryError,
+  } = useGetAnalyticsQuery({ range });
+
+  const error = queryError ? "Failed to load analytics" : null;
 
   const dailySeries = useMemo(() => {
     const rows = data?.daily ?? [];
-    // Keep it simple: show up to 14 points (most recent)
     const clipped = rows.slice(-14);
     return clipped.map((r) => ({
       label: r._id.slice(8, 10),
       value: r.count ?? 0,
     }));
-  }, [data]);
-
-  const outcomes = useMemo(() => {
-    const total = data?.totalCalls ?? 0;
-    const booked = data?.outcomes.booked ?? 0;
-    const callback = data?.outcomes.callback ?? 0;
-    const notBooked = data?.outcomes.notBooked ?? 0;
-
-    return [
-      { label: "Appointment Booked", count: booked, pct: percent(booked, total), color: "bg-green-500" },
-      { label: "Callback Requested", count: callback, pct: percent(callback, total), color: "bg-yellow-500" },
-      { label: "Not Booked", count: notBooked, pct: percent(notBooked, total), color: "bg-red-500" },
-    ];
   }, [data]);
 
   const subtitle = range === "7d" ? "Last 7 days" : range === "month" ? "This month" : "Last 30 days";

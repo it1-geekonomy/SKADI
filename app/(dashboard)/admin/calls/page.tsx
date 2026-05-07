@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { CallTable } from "@/components/dashboard/CallTable";
 import { CallDetailModal } from "@/components/dashboard/CallDetailModal";
+import {
+  useGetCallByIdQuery,
+  useGetCallsQuery,
+  useLazyGetCallsQuery,
+  useSyncCallsMutation,
+} from "@/lib/store/endpoints/callsApi";
 
 type TimeRange = "30d" | "7d" | "today";
 type OutcomeFilter = "all" | "booked" | "callback" | "missed";
@@ -51,74 +57,66 @@ function rangeSubtitle(range: TimeRange): string {
 export default function CallsPage() {
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilter>("all");
   const [timeRange, setTimeRange] = useState<TimeRange>("30d");
-  const [calls, setCalls] = useState<TableCall[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCall, setSelectedCall] = useState<CallDetail | null>(null);
+
+  const {
+    data: callsData,
+    isLoading: loading,
+    error: listError,
+  } = useGetCallsQuery({
+    range: timeRange,
+    outcome: outcomeFilter,
+    limit: 50,
+    skip: 0,
+  });
+
+  const calls: TableCall[] = (callsData?.calls as TableCall[]) ?? [];
+
+  const [syncCalls, { isLoading: syncing }] = useSyncCallsMutation();
+  const [fetchCallsForExport] = useLazyGetCallsQuery();
+
+  const [activeCallId, setActiveCallId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [syncing, setSyncing] = useState(false);
+
+  const {
+    data: detailData,
+    isFetching: detailLoading,
+    error: detailError,
+  } = useGetCallByIdQuery(activeCallId ?? "", { skip: !activeCallId });
+
+  const selectedCall: CallDetail | null = detailData?.call ?? null;
+
+  // Sync/export errors live in local state; query errors are derived inline.
+  const [actionError, setActionError] = useState<string | null>(null);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
   const [toast, setToast] = useState<{ kind: "success" | "info" | "error"; message: string } | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  const queryErrorMessage = listError
+    ? "Failed to load calls"
+    : detailError
+      ? "Failed to load call"
+      : null;
+  const error = actionError ?? queryErrorMessage;
 
   const showToast = useCallback((t: { kind: "success" | "info" | "error"; message: string }) => {
     setToast(t);
     window.setTimeout(() => setToast(null), 4200);
   }, []);
 
-  const loadCalls = useCallback(
-    async (opts?: { silent?: boolean }) => {
-      if (!opts?.silent) {
-        setLoading(true);
-      }
-      setError(null);
-      try {
-        const params = new URLSearchParams({
-          limit: "50",
-          skip: "0",
-          range: timeRange,
-          outcome: outcomeFilter,
-        });
-        const res = await fetch(`/api/calls?${params}`);
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to load calls");
-        }
-        setCalls(data.calls ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load calls");
-        setCalls([]);
-      } finally {
-        if (!opts?.silent) {
-          setLoading(false);
-        }
-      }
-    },
-    [timeRange, outcomeFilter]
-  );
-
   const handleSyncFromRetell = async () => {
     setSyncNotice(null);
     setToast(null);
-    setSyncing(true);
-    setError(null);
+    setActionError(null);
     try {
-      const res = await fetch("/api/sync-calls", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Sync failed");
-      }
-      const removed =
-        typeof data.removed_web_calls === "number" ? data.removed_web_calls : 0;
+      const data = await syncCalls().unwrap();
+
+      const removed = typeof data.removed_web_calls === "number" ? data.removed_web_calls : 0;
       const fetched = typeof data.fetched === "number" ? data.fetched : 0;
       const inserted = typeof data.inserted === "number" ? data.inserted : 0;
       const updated = typeof data.updated === "number" ? data.updated : 0;
       const unchanged = typeof data.unchanged === "number" ? data.unchanged : 0;
-      const skippedWeb =
-        typeof data.skipped_web_calls === "number" ? data.skipped_web_calls : 0;
-      const skippedInvalid =
-        typeof data.skipped_invalid === "number" ? data.skipped_invalid : 0;
+      const skippedWeb = typeof data.skipped_web_calls === "number" ? data.skipped_web_calls : 0;
+      const skippedInvalid = typeof data.skipped_invalid === "number" ? data.skipped_invalid : 0;
 
       const didChange = inserted > 0 || updated > 0;
       if (!didChange) {
@@ -141,60 +139,41 @@ export default function CallsPage() {
       if (didChange) {
         setSyncNotice(parts.join(" "));
       }
-      await loadCalls({ silent: true });
+      // No manual reload required — `invalidatesTags` on the mutation
+      // automatically refreshes the active calls/overview/analytics queries.
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Sync failed");
-      showToast({
-        kind: "error",
-        message: e instanceof Error ? e.message : "Sync failed",
-      });
-    } finally {
-      setSyncing(false);
+      const msg =
+        e instanceof Error
+          ? e.message
+          : typeof e === "object" && e && "data" in e
+            ? "Sync failed"
+            : "Sync failed";
+      setActionError(msg);
+      showToast({ kind: "error", message: msg });
     }
   };
 
-  useEffect(() => {
-    void loadCalls();
-  }, [loadCalls]);
-
-  const handleRowClick = async (call: TableCall) => {
-    setDetailLoading(true);
+  const handleRowClick = (call: TableCall) => {
+    setActiveCallId(call.call_id);
     setIsModalOpen(true);
-    setSelectedCall(null);
-    try {
-      const res = await fetch(
-        `/api/calls/${encodeURIComponent(call.call_id)}`
-      );
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Failed to load call");
-      }
-      setSelectedCall(data.call ?? null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load call");
-      setIsModalOpen(false);
-    } finally {
-      setDetailLoading(false);
-    }
   };
 
   const handleExportCsv = async () => {
-    setError(null);
+    setActionError(null);
     setSyncNotice(null);
     setToast(null);
     setExporting(true);
     try {
-      const params = new URLSearchParams({
-        limit: "5000",
-        skip: "0",
+      // Lazy trigger goes through the same RTK Query cache; if the same
+      // (range, outcome) is already cached fresh, this is instant.
+      const result = await fetchCallsForExport({
         range: timeRange,
         outcome: outcomeFilter,
-      });
-      const res = await fetch(`/api/calls?${params}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to export CSV");
+        limit: 5000,
+        skip: 0,
+      }).unwrap();
 
-      const rows: TableCall[] = Array.isArray(data.calls) ? data.calls : [];
+      const rows: TableCall[] = (result.calls as TableCall[]) ?? [];
       if (!rows.length) {
         showToast({ kind: "info", message: "No calls found for this filter." });
         return;
@@ -359,7 +338,6 @@ export default function CallsPage() {
         isOpen={isModalOpen && Boolean(selectedCall)}
         onClose={() => {
           setIsModalOpen(false);
-          setSelectedCall(null);
         }}
         call={selectedCall}
       />
