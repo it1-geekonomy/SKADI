@@ -1,5 +1,10 @@
 import type { CallOutcome } from '@/utils/deriveOutcome';
 import { deriveOutcome } from '@/utils/deriveOutcome';
+import {
+  DASHBOARD_TIME_ZONE,
+  formatDashboardDateKey,
+  startOfDashboardTodayMs,
+} from '@/lib/dashboard-time';
 
 export type TimeRangeKey = '30d' | '7d' | 'today';
 
@@ -55,9 +60,7 @@ export function getRangeBounds(
     case '7d':
       return { startMs: endMs - 7 * day, endMs };
     case 'today': {
-      const d = new Date();
-      d.setUTCHours(0, 0, 0, 0);
-      return { startMs: d.getTime(), endMs };
+      return { startMs: startOfDashboardTodayMs(), endMs };
     }
     default:
       return { startMs: endMs - 7 * day, endMs };
@@ -124,12 +127,10 @@ function formatDurationSec(sec: number): string {
 function formatTableTime(startMs: number): string {
   const d = new Date(startMs);
   const now = new Date();
-  const sameDay =
-    d.getUTCFullYear() === now.getUTCFullYear() &&
-    d.getUTCMonth() === now.getUTCMonth() &&
-    d.getUTCDate() === now.getUTCDate();
+  const sameDay = formatDashboardDateKey(d) === formatDashboardDateKey(now);
 
   const timeFmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: DASHBOARD_TIME_ZONE,
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -140,6 +141,7 @@ function formatTableTime(startMs: number): string {
   }
 
   const dateFmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: DASHBOARD_TIME_ZONE,
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -151,11 +153,13 @@ function formatTableTime(startMs: number): string {
 function formatModalDate(startMs: number): { date: string; time: string } {
   const d = new Date(startMs);
   const date = new Intl.DateTimeFormat('en-GB', {
+    timeZone: DASHBOARD_TIME_ZONE,
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   }).format(d);
   const time = new Intl.DateTimeFormat('en-GB', {
+    timeZone: DASHBOARD_TIME_ZONE,
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,

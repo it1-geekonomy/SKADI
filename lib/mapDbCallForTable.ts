@@ -1,4 +1,8 @@
 import type { CallOutcome } from '@/utils/deriveOutcome';
+import {
+  DASHBOARD_TIME_ZONE,
+  formatDashboardDateKey,
+} from '@/lib/dashboard-time';
 
 export type ApiCallTableRow = {
   call_id: string;
@@ -28,12 +32,10 @@ function formatDurationSec(sec: number): string {
 function formatTableTime(startMs: number): string {
   const d = new Date(startMs);
   const now = new Date();
-  const sameDay =
-    d.getUTCFullYear() === now.getUTCFullYear() &&
-    d.getUTCMonth() === now.getUTCMonth() &&
-    d.getUTCDate() === now.getUTCDate();
+  const sameDay = formatDashboardDateKey(d) === formatDashboardDateKey(now);
 
   const timeFmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: DASHBOARD_TIME_ZONE,
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -44,6 +46,7 @@ function formatTableTime(startMs: number): string {
   }
 
   const dateFmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: DASHBOARD_TIME_ZONE,
     day: '2-digit',
     month: 'short',
     year: 'numeric',
