@@ -43,7 +43,7 @@ export default function SettingsPage() {
         <div className="card bg-surface border border-border rounded-[12px] p-6">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Notifications</h2>
-            <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-500 text-[9px] font-bold border border-blue-500/20">
+            <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent text-[9px] font-bold border border-accent/30">
               Email Alerts
             </span>
           </div>
