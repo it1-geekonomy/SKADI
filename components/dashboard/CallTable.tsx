@@ -91,7 +91,7 @@ function SentimentBadge({ sentiment }: { sentiment: Call["sentiment"] }) {
 
 function DirectionBadge({ direction }: { direction: Call["direction"] }) {
   const colors = {
-    Inbound: "bg-blue-500/10 text-blue-500",
+    Inbound: "bg-accent/10 text-accent",
     Outbound: "bg-accent/10 text-accent",
   };
   return (
