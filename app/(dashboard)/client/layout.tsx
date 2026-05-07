@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Sidebar, DashboardIcon, HistoryIcon, TranscriptIcon, AnalyticsIcon, SettingsIcon } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { DashboardThemeRoot } from "@/components/dashboard/DashboardThemeRoot";
+import { RealtimeSync } from "@/lib/store/useRealtimeSync";
 import { usePathname } from "next/navigation";
 
 export default function ClientDashboardLayout({
@@ -43,6 +44,7 @@ export default function ClientDashboardLayout({
 
   return (
     <DashboardThemeRoot>
+      <RealtimeSync />
       <div className="flex flex-1 w-full min-h-screen bg-bg">
         {/* Desktop sidebar */}
         <Sidebar
