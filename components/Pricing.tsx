@@ -1,10 +1,15 @@
+"use client";
+
 import { forwardRef } from 'react';
+import { useLandingCurrency } from '@/lib/landing-currency';
 
 const plans = [
   {
     tier: "Starter",
-    price: "$1500",
-    period: "Setup + $700 / month",
+    price: {
+      USD: 997,
+      INR: 39999,
+    },
     features: [
       "First 10 calls Free",
       "Lead qualification",
@@ -17,8 +22,10 @@ const plans = [
   },
   {
     tier: "Growth - Most Popular",
-    price: "$2500",
-    period: "Setup + $1100 / month",
+    price: {
+      USD: 1797,
+      INR: 74999,
+    },
     features: [
       "Unlimited calls",
       "Advanced lead scoring",
@@ -33,7 +40,7 @@ const plans = [
   },
   {
     tier: "Enterprise",
-    price: "Custom",
+    price: null,
     period: "Tailored to your business",
     features: [
       "Multiple locations",
@@ -52,6 +59,8 @@ interface PricingProps {
 }
 
 const Pricing = forwardRef<HTMLDivElement, PricingProps>(({ onBookDemo }, ref) => {
+  const { currency, formatCurrencyAmount } = useLandingCurrency();
+
   return (
     <div className="bg-parchment-dark" id="pricing">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 py-[100px]">
@@ -84,16 +93,20 @@ const Pricing = forwardRef<HTMLDivElement, PricingProps>(({ onBookDemo }, ref) =
               <div
                 className={`font-bebas leading-none mb-1 ${
                   plan.featured ? "text-parchment" : "text-forest"
-                } ${plan.price === "Custom" ? "text-[36px] pt-2" : "text-[56px]"}`}
+                } ${plan.price === null ? "text-[36px] pt-2" : "text-[56px]"}`}
               >
-                {plan.price}
+                {plan.price === null
+                  ? "Custom"
+                  : formatCurrencyAmount(plan.price[currency])}
               </div>
               <p
                 className={`text-[13px] font-light mb-7 ${
                   plan.featured ? "text-[rgba(245,240,232,0.4)]" : "text-mid"
                 }`}
               >
-                {plan.period}
+                {plan.price === null
+                  ? "Tailored to your business"
+                  : "per month"}
               </p>
 
               <ul className="flex flex-col gap-3 mb-8">

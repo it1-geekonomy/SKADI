@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
-
-function fmt(n: number) {
-  return "$" + Math.round(n).toLocaleString();
-}
+import { useState } from "react";
+import { useLandingCurrency } from "@/lib/landing-currency";
 
 export default function ROICalculator() {
+  const { currency, symbol, formatMoney, formatCurrencyAmount } =
+    useLandingCurrency();
   const [calls, setCalls] = useState(200);
   const [missed, setMissed] = useState(40);
   const [deal, setDeal] = useState(500);
@@ -16,6 +15,7 @@ export default function ROICalculator() {
   const revLost = Math.round(leadsLost * (close / 100) * deal);
   const revRecovered = Math.round(revLost * 0.85);
   const annualGain = Math.round((revRecovered - 599) * 12);
+  const starterPlanPrice = currency === "INR" ? 39999 : 997;
 
   return (
     <div className="bg-forest" id="roi">
@@ -53,9 +53,9 @@ export default function ROICalculator() {
                 onChange: (v: number) => setMissed(v),
               },
               {
-                label: "Average deal value ($)",
+                label: `Average deal value (${symbol})`,
                 value: deal,
-                displayVal: "$" + deal.toLocaleString(),
+                displayVal: formatMoney(deal),
                 min: 100, max: 10000, step: 100,
                 onChange: (v: number) => setDeal(v),
               },
@@ -100,21 +100,21 @@ export default function ROICalculator() {
               },
               {
                 label: "Revenue lost per month",
-                value: fmt(revLost),
+                value: formatMoney(revLost),
                 highlight: false,
                 sub: "deals that never happen",
               },
               {
                 label: "Revenue recovered with Skadi",
-                value: fmt(revRecovered) + "/mo",
+                value: formatMoney(revRecovered) + "/mo",
                 highlight: true,
                 sub: "additional monthly revenue",
               },
               {
                 label: "Your annual gain",
-                value: annualGain > 0 ? fmt(annualGain) + "/yr" : "$0",
+                value: annualGain > 0 ? formatMoney(annualGain) + "/yr" : formatMoney(0),
                 highlight: true,
-                sub: "vs Skadi Starter plan at $1500/mo",
+                sub: `vs Skadi Starter plan at ${formatCurrencyAmount(starterPlanPrice)}/mo`,
               },
             ].map((result, i) => (
               <div key={result.label}>

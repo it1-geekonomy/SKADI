@@ -1,17 +1,15 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
 
 interface TopbarProps {
   title: string;
 }
 
 export function Topbar({ title }: TopbarProps) {
-  const router = useRouter();
-
   const handleSignOut = () => {
-    router.push("/login");
+    // Login route is disabled/commented for now.
+    // router.push("/login");
   };
 
   return (
