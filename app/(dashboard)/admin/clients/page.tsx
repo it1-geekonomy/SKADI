@@ -3,7 +3,7 @@
 import React from "react";
 
 const CLIENTS = [
-  { name: "Divyasree", type: "Interior Consulting", initials: "DS", color: "#7c6df0", status: "Active", calls: 247, bookRate: "74%", bookings: 183, duration: "2:34" },
+  { name: "Divyasree", type: "Interior Consulting", initials: "DS", color: "#1C4532", status: "Active", calls: 247, bookRate: "74%", bookings: 183, duration: "2:34" },
   { name: "TechCorp India", type: "IT Services", initials: "TC", color: "#3b82f6", status: "Active", calls: 512, bookRate: "61%", bookings: 312, duration: "1:58" },
   { name: "Meera Clinics", type: "Healthcare", initials: "MC", color: "#22c55e", status: "Setup", calls: 89, bookRate: "82%", bookings: 73, duration: "3:12" },
 ];

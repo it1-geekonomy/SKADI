@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -10,6 +11,8 @@ interface NavItem {
 
 interface SidebarProps {
   logo: string;
+  logoSrc?: string;
+  homeHref?: string;
   sections: {
     label: string;
     items: NavItem[];
@@ -19,14 +22,40 @@ interface SidebarProps {
     role: string;
     initials: string;
   };
+  className?: string;
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ logo, sections, user }: SidebarProps) {
+export function Sidebar({
+  logo,
+  logoSrc,
+  homeHref,
+  sections,
+  user,
+  className,
+  onNavigate,
+}: SidebarProps) {
+  const logoHref = homeHref ?? "/";
+  const src = logoSrc ?? "/Skadi Logo Final.png";
   return (
-    <aside className="w-[220px] flex-shrink-0 bg-surface border-r border-border flex flex-col h-screen sticky top-0 font-geist">
-      <div className="p-5 text-lg font-semibold tracking-tight border-b border-border">
-        <Link href="/" className="text-text-main group">
-          Ska<span className="text-accent">di</span>
+    <aside
+      className={[
+        "w-[220px] flex-shrink-0 bg-surface border-r border-border flex flex-col font-geist",
+        className ?? "h-screen sticky top-0",
+      ].join(" ")}
+    >
+      <div className="px-2 py-2 border-b border-border">
+        <Link href={logoHref} className="flex items-center w-full" onClick={onNavigate}>
+          <div className="relative w-full max-w-[200px] mx-auto h-[60px] overflow-hidden rounded-[5px]">
+            <Image
+              src={src}
+              alt={logo || "Skadi"}
+              fill
+              priority
+              sizes="180px"
+              className="object-cover object-center"
+            />
+          </div>
         </Link>
       </div>
 
@@ -38,7 +67,7 @@ export function Sidebar({ logo, sections, user }: SidebarProps) {
             </h3>
             <nav className="space-y-1.5">
               {section.items.map((item, itemIdx) => (
-                <SidebarNavItem key={itemIdx} {...item} />
+                <SidebarNavItem key={itemIdx} {...item} onNavigate={onNavigate} />
               ))}
             </nav>
           </div>
@@ -60,13 +89,19 @@ export function Sidebar({ logo, sections, user }: SidebarProps) {
   );
 }
 
-function SidebarNavItem({ label, href, icon }: NavItem) {
+function SidebarNavItem({
+  label,
+  href,
+  icon,
+  onNavigate,
+}: NavItem & { onNavigate?: () => void }) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={`flex items-center gap-3 px-3 py-2 rounded-[10px] transition-all text-[13px] ${
         isActive
           ? "bg-accent/10 border border-accent/30 text-accent font-semibold"
