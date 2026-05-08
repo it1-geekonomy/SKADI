@@ -1,13 +1,10 @@
-"use client";
-
 import { PhoneIcon, ClockIcon, MoonIcon, UsersIcon } from "./Icons";
-import { useLandingCurrency } from "@/lib/landing-currency";
 
 const stats = [
   { num: "62%", label: "of small business calls go unanswered - only 1 in 3 reaches a live person" },
   { num: "10 sec", label: "is all it takes - 60% of callers hang up if not answered within 10 seconds" },
   { num: "85%", label: "of callers who hit voicemail never call back - and 62% call a competitor instead" },
-  { num: "annualLoss", label: "lost annually by the average small business due to missed calls alone" },
+  { num: "13-23%", label: "lost yearly by an average business to missed calls" },
 ];
 
 const pains = [
@@ -34,8 +31,6 @@ const pains = [
 ];
 
 export default function Problem() {
-  const { formatMoney } = useLandingCurrency();
-
   return (
     <div className="bg-parchment-dark" id="problem">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 py-[100px]">
@@ -61,7 +56,7 @@ export default function Problem() {
                 className="p-6 bg-[rgba(255,255,255,0.3)] rounded-lg"
               >
                 <div className="font-bebas text-[72px] text-forest tracking-[0.02em] leading-none mb-2">
-                  {s.num === "annualLoss" ? formatMoney(126000, true) : s.num}
+                  {s.num}
                 </div>
                 <div className="text-[15px] text-mid font-light leading-[1.5]">
                   {s.label}
