@@ -21,18 +21,17 @@ export default function ROICalculator() {
     <div className="bg-forest" id="roi">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 py-[100px]">
         <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-gold mb-4">
-          ROI Calculator
+          Calculate Your AI Call Agent Automation ROI
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start mb-10">
           {/* Heading Section - Left */}
           <div>
             <h2 className="font-bebas text-[clamp(44px,5vw,64px)] leading-none tracking-[0.04em] text-parchment mb-4">
-              See what missed calls are costing you.
+              Calculate How Much Revenue You’re Losing from Missed Calls
             </h2>
             <p className="text-[16px] text-[rgba(245,240,232,0.45)] font-light max-w-[480px] leading-[1.7] mb-10">
-              Move the sliders to match your business. See your real numbers
-              instantly.
+               Estimate how many leads you lose every month due to missed customer calls and how much revenue you can recover with an AI voice agent.
             </p>
 
             {/* Sliders */}
@@ -93,19 +92,19 @@ export default function ROICalculator() {
           <div className="bg-[rgba(245,240,232,0.05)] border border-[rgba(245,240,232,0.08)] rounded-xl p-10 flex flex-col gap-7 order-2">
             {[
               {
-                label: "Leads lost per month",
+                label: "Leads Lost from Missed Calls (Per Month)",
                 value: leadsLost + " leads",
                 highlight: false,
                 sub: "calls slipping through without Skadi",
               },
               {
-                label: "Revenue lost per month",
+                label: "Estimated Revenue Lost from Unanswered Calls",
                 value: formatMoney(revLost),
                 highlight: false,
                 sub: "deals that never happen",
               },
               {
-                label: "Revenue recovered with Skadi",
+                label: "Revenue You Can Recover with AI Call Automation",
                 value: formatMoney(revRecovered) + "/mo",
                 highlight: true,
                 sub: "additional monthly revenue",

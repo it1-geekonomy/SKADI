@@ -15,7 +15,7 @@ export default function Hero({ onGetStarted }: HeroProps) {
         {/* Badge */}
         <h1 className="animate-fade-up-1 inline-flex items-center gap-2 px-3.5 py-[7px] bg-[rgba(28,69,50,0.08)] border border-[rgba(28,69,50,0.18)] rounded-full text-[11px] font-medium text-forest tracking-[0.1em] uppercase mb-9">
           <div className="w-1.5 h-1.5 bg-forest rounded-full animate-pulse-dot" />
-          AI Voice Agent · Live 24/7
+          AI VOICE AGENT FOR BUSINESS · LIVE 24/7
         </h1>
 
         {/* Wordmark */}
@@ -30,8 +30,7 @@ export default function Hero({ onGetStarted }: HeroProps) {
 
         {/* Description */}
         <p className="animate-fade-up-3 text-[18px] text-mid leading-[1.75] font-light mb-11 max-w-[480px]">
-          An AI voice agent that picks up every call, qualifies every lead, and
-          books every appointment - 24 hours a day, 7 days a week.
+          Our AI call automation agent service answers every call instantly, qualifies leads, and books appointments — helping you automate customer calls and capture more revenue 24/7.
         </p>
 
         {/* Actions */}
@@ -40,13 +39,13 @@ export default function Hero({ onGetStarted }: HeroProps) {
             href="#pricing"
             className="px-8 py-3.5 bg-forest text-parchment rounded text-[14px] font-medium tracking-[0.04em] transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
           >
-            Get Started
+            Book Free AI Call Demo
           </Link>
           <Link
             href="#problem"
             className="px-8 py-3.5 bg-transparent text-forest border border-[1.5px] border-forest rounded text-[14px] font-medium tracking-[0.04em] no-underline transition-all duration-200 hover:bg-forest hover:text-parchment"
           >
-            See the Problem
+            Listen to AI Answer a Call
           </Link>
         </div>
       </div>

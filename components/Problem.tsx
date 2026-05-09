@@ -35,16 +35,15 @@ export default function Problem() {
     <div className="bg-parchment-dark" id="problem">
       <div className="max-w-[1120px] mx-auto px-6 md:px-14 py-[100px]">
         <p className="text-[10px] font-semibold tracking-[0.18em] uppercase text-gold mb-4">
-          The problem
+          THE PROBLEM: MISSED CALLS ARE COSTING YOU REVENUE
         </p>
         <h2 className="font-bebas text-[clamp(44px,5vw,64px)] leading-none tracking-[0.04em] text-forest mb-5">
-          Your business is bleeding
+          Missed Customer Calls Are Costing
           <br />
-          revenue every day.
+          You Leads Every Day
         </h2>
         <p className="text-[17px] text-mid leading-[1.75] font-light max-w-[520px]">
-          Most business owners don&apos;t realise it. Every unanswered call is a lead
-          that walked straight to your competitor - and never came back.
+          Most businesses struggle to handle customer calls at scale. Every missed call is a lost opportunity — a potential customer who moves to your competitor because you didn’t respond in time.
         </p>
 
         <div className="mt-16">
