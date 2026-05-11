@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter, Poppins } from "next/font/google";
 import Script from "next/script";
 import StoreProvider from "@/lib/store/StoreProvider";
+import NavbarWrapper from "@/components/NavbarWrapper"; 
+import Footer from "@/components/Footer";
+
 import "./globals.css";
-// import AnimatedGifFavicon from "../components/AnimatedGifFavicon";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -29,9 +31,6 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
-  // icons: {
-  //   icon: { url: "/icons8-favicon-v2.gif", type: "image/gif" },
-  // },
 };
 
 export default function RootLayout({
@@ -59,8 +58,11 @@ export default function RootLayout({
             gtag('config', 'G-01BZCT48LM');
           `}
         </Script>
-        {/* <AnimatedGifFavicon gifUrl="/icons8-favicon-v2.gif" /> */}
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <NavbarWrapper /> 
+          {children}
+        </StoreProvider>
+        <Footer />
       </body>
     </html>
   );
