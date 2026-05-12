@@ -13,7 +13,7 @@ export default function Navbar({ onBookDemo }: NavbarProps) {
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between pr-6 h-[68px] bg-[rgba(245,240,232,0.96)] backdrop-blur-[16px] border-b border-stone">
-        <Link href="#" className="no-underline leading-none py-0 -translate-x-20">
+        <Link href="/" className="no-underline leading-none py-0 -translate-x-20">
           <Image
             src="/logo.png"
             alt="Skadi"
