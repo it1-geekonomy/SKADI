@@ -10,8 +10,14 @@ import {
 import { emitCallsChanged } from '@/lib/realtime/event-bus';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const RETELL_BASE = 'https://api.retellai.com';
+const FULL_SYNC_PAGE_SIZE = 1000;
+const RECENT_SYNC_PAGE_SIZE = 100;
+const FULL_SYNC_MAX_PAGES = 500;
+const RECENT_SYNC_MAX_PAGES = 1;
 
 type RetellListResponse = {
   items?: unknown[];
@@ -42,7 +48,7 @@ async function fetchRetellPage(
   return (await res.json()) as RetellListResponse;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   const apiKey = process.env.RETELL_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -52,11 +58,16 @@ export async function POST() {
   }
 
   try {
+    const url = new URL(request.url);
+    const recentOnly = url.searchParams.get('scope') === 'recent';
+
     await connectMongo();
 
-    const removedWeb = await Call.deleteMany({ call_type: 'web_call' });
+    const removedWeb = recentOnly
+      ? { deletedCount: 0 }
+      : await Call.deleteMany({ call_type: 'web_call' });
 
-    const pageSize = 1000;
+    const pageSize = recentOnly ? RECENT_SYNC_PAGE_SIZE : FULL_SYNC_PAGE_SIZE;
     let pagination_key: string | undefined;
     let retellItems = 0;
     let skippedWeb = 0;
@@ -66,7 +77,7 @@ export async function POST() {
     let updated = 0;
     let unchanged = 0;
     let pages = 0;
-    const maxPages = 500;
+    const maxPages = recentOnly ? RECENT_SYNC_MAX_PAGES : FULL_SYNC_MAX_PAGES;
 
     do {
       const payload: Record<string, unknown> = {
@@ -127,6 +138,7 @@ export async function POST() {
 
     return NextResponse.json({
       ok: true,
+      scope: recentOnly ? 'recent' : 'full',
       fetched: retellItems,
       inserted,
       updated,

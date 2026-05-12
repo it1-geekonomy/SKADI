@@ -13,6 +13,9 @@ type CallsChangedPayload = {
 const FALLBACK_REFRESH_MS =
   Number.parseInt(process.env.NEXT_PUBLIC_REALTIME_FALLBACK_MS ?? "", 10) ||
   10_000;
+const AUTO_RETELL_SYNC_MS =
+  Number.parseInt(process.env.NEXT_PUBLIC_AUTO_RETELL_SYNC_MS ?? "", 10) ||
+  15_000;
 const ENABLE_SSE = process.env.NEXT_PUBLIC_ENABLE_SSE === "1";
 
 function invalidateDashboardData(
@@ -39,6 +42,8 @@ function invalidateDashboardData(
  * mounted once per app session (we mount it in the dashboard layouts).
  *
  * Behavior:
+ *   - Runs a lightweight recent Retell sync while the dashboard tab is visible.
+ *     This is the live fallback for missed/delayed webhooks.
  *   - Polls subscribed queries on a short interval. This is reliable on Vercel
  *     because webhook writes and dashboard reads both go through MongoDB.
  *   - Optionally opens `EventSource('/api/realtime')` when
@@ -74,14 +79,41 @@ export function useRealtimeSync(): void {
 
     es?.addEventListener("calls-changed", handleCallsChanged as EventListener);
 
+    let syncInFlight = false;
+    const syncRecentRetellCalls = async () => {
+      if (syncInFlight || document.hidden) return;
+
+      syncInFlight = true;
+      try {
+        const res = await fetch("/api/sync-calls?scope=recent", {
+          method: "POST",
+        });
+
+        if (res.ok) {
+          invalidateDashboardData(dispatch);
+        }
+      } catch {
+        // Ignore transient background sync failures; the next interval retries.
+      } finally {
+        syncInFlight = false;
+      }
+    };
+
+    void syncRecentRetellCalls();
+
     const fallbackRefresh = window.setInterval(() => {
       if (!document.hidden) {
         invalidateDashboardData(dispatch);
       }
     }, FALLBACK_REFRESH_MS);
 
+    const autoRetellSync = window.setInterval(() => {
+      void syncRecentRetellCalls();
+    }, AUTO_RETELL_SYNC_MS);
+
     return () => {
       window.clearInterval(fallbackRefresh);
+      window.clearInterval(autoRetellSync);
       es?.removeEventListener(
         "calls-changed",
         handleCallsChanged as EventListener
@@ -92,9 +124,8 @@ export function useRealtimeSync(): void {
 }
 
 /**
- * Tiny mount-only component for layouts: just calls the hook so the SSE
- * connection lives for the whole dashboard session without polluting the
- * layout component itself.
+ * Tiny mount-only component for layouts: keeps dashboard data fresh without
+ * polluting the layout component itself.
  */
 export function RealtimeSync(): null {
   useRealtimeSync();
