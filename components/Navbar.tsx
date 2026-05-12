@@ -30,7 +30,7 @@ export default function Navbar({ onBookDemo }: NavbarProps) {
             { label: "ROI Calculator", href: "#roi" },
             { label: "How We Fix It", href: "#fix" },
             { label: "Pricing", href: "#pricing" },
-            { label: "Blogs", href: "/blogs" },
+            // { label: "Blogs", href: "/blogs" },
           ].map((item) => (
             <li key={item.href}>
               <Link
