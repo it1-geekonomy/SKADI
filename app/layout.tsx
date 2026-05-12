@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter, Poppins } from "next/font/google";
 import Script from "next/script";
 import StoreProvider from "@/lib/store/StoreProvider";
-import NavbarWrapper from "@/components/NavbarWrapper"; 
-import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 
 import "./globals.css";
 
@@ -59,10 +58,8 @@ export default function RootLayout({
           `}
         </Script>
         <StoreProvider>
-          <NavbarWrapper /> 
-          {children}
+          <SiteChrome>{children}</SiteChrome>
         </StoreProvider>
-        <Footer />
       </body>
     </html>
   );
