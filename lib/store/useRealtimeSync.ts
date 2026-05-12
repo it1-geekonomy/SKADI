@@ -12,7 +12,8 @@ type CallsChangedPayload = {
 
 const FALLBACK_REFRESH_MS =
   Number.parseInt(process.env.NEXT_PUBLIC_REALTIME_FALLBACK_MS ?? "", 10) ||
-  30_000;
+  10_000;
+const ENABLE_SSE = process.env.NEXT_PUBLIC_ENABLE_SSE === "1";
 
 function invalidateDashboardData(
   dispatch: ReturnType<typeof useAppDispatch>,
@@ -31,31 +32,34 @@ function invalidateDashboardData(
 }
 
 /**
- * Subscribe to the server's SSE stream and refresh RTK Query caches whenever
- * the backend reports new/changed call data (Retell webhook or manual sync).
+ * Refresh RTK Query caches whenever Retell webhook/manual sync data may have
+ * changed.
  *
  * The hook is idempotent — many components can call it; we just need it
  * mounted once per app session (we mount it in the dashboard layouts).
  *
  * Behavior:
- *   - Opens `EventSource('/api/realtime')` on mount.
+ *   - Polls subscribed queries on a short interval. This is reliable on Vercel
+ *     because webhook writes and dashboard reads both go through MongoDB.
+ *   - Optionally opens `EventSource('/api/realtime')` when
+ *     `NEXT_PUBLIC_ENABLE_SSE=1` for single-instance/self-hosted deployments.
  *   - On `calls-changed`, invalidates list-level tags so all subscribed
  *     queries (calls list, overview, analytics) refetch in the background.
  *     If a `call_id` is included, the matching call-detail cache entry is
  *     invalidated too.
- *   - EventSource auto-reconnects with exponential backoff on network blips.
- *   - A 30s fallback invalidation keeps auto-sync working on Vercel/serverless
- *     where webhooks and SSE connections can land on different instances.
  */
 export function useRealtimeSync(): void {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof EventSource === "undefined") {
+    if (typeof window === "undefined") {
       return;
     }
 
-    const es = new EventSource("/api/realtime");
+    const es =
+      ENABLE_SSE && typeof EventSource !== "undefined"
+        ? new EventSource("/api/realtime")
+        : null;
 
     const handleCallsChanged = (ev: MessageEvent) => {
       let parsed: CallsChangedPayload | null = null;
@@ -68,7 +72,7 @@ export function useRealtimeSync(): void {
       invalidateDashboardData(dispatch, parsed?.call_id);
     };
 
-    es.addEventListener("calls-changed", handleCallsChanged as EventListener);
+    es?.addEventListener("calls-changed", handleCallsChanged as EventListener);
 
     const fallbackRefresh = window.setInterval(() => {
       if (!document.hidden) {
@@ -78,11 +82,11 @@ export function useRealtimeSync(): void {
 
     return () => {
       window.clearInterval(fallbackRefresh);
-      es.removeEventListener(
+      es?.removeEventListener(
         "calls-changed",
         handleCallsChanged as EventListener
       );
-      es.close();
+      es?.close();
     };
   }, [dispatch]);
 }

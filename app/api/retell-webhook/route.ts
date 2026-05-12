@@ -12,6 +12,9 @@ import { emitCallsChanged } from '@/lib/realtime/event-bus';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+const GET_CALL_RETRY_DELAYS_MS = [0, 750, 1500] as const;
 
 /**
  * POST /api/retell-webhook
@@ -83,6 +86,33 @@ function getEventName(payload: RetellWebhookPayload) {
   return payload.event ?? payload.event_type ?? 'unknown';
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function retellGetCallWithRetry(callId: string): Promise<RetellCallItem> {
+  let lastError: unknown;
+
+  for (const delay of GET_CALL_RETRY_DELAYS_MS) {
+    if (delay > 0) {
+      await wait(delay);
+    }
+
+    try {
+      return (await retellGetCall(callId)) as RetellCallItem;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+}
+
+function hasDisplayablePhoneNumber(fields: ReturnType<typeof toCallFields>) {
+  if (!fields) return false;
+  return fields.from_number.trim() !== '' || fields.to_number.trim() !== '';
+}
+
 export async function POST(request: Request) {
   let rawBody: string;
   try {
@@ -138,7 +168,7 @@ export async function POST(request: Request) {
     try {
       // Fetch canonical call data. This makes webhook sync reliable for both
       // full call payloads and lightweight call_id-only payloads.
-      retellCall = (await retellGetCall(callId)) as RetellCallItem;
+      retellCall = await retellGetCallWithRetry(callId);
     } catch (error) {
       console.warn('[retell-webhook] get-call failed; using webhook payload', {
         call_id: callId,
@@ -150,12 +180,37 @@ export async function POST(request: Request) {
     const fields = candidate ? toCallFields(candidate) : null;
 
     if (!fields) {
-      return NextResponse.json({
-        ok: true,
-        skipped: true,
+      if (candidate?.call_type === 'web_call') {
+        return NextResponse.json({
+          ok: true,
+          skipped: true,
+          reason: 'web_call',
+          event: getEventName(payload),
+          call_id: callId,
+        });
+      }
+
+      console.warn('[retell-webhook] call data unavailable; requesting retry', {
         event: getEventName(payload),
         call_id: callId,
+        source: retellCall ? 'retell_get_call' : 'webhook_payload',
       });
+      return NextResponse.json(
+        { error: 'Call data unavailable', call_id: callId },
+        { status: 500 }
+      );
+    }
+
+    if (!hasDisplayablePhoneNumber(fields)) {
+      console.warn('[retell-webhook] call has no phone numbers; requesting retry', {
+        event: getEventName(payload),
+        call_id: callId,
+        source: retellCall ? 'retell_get_call' : 'webhook_payload',
+      });
+      return NextResponse.json(
+        { error: 'Call phone numbers unavailable', call_id: callId },
+        { status: 500 }
+      );
     }
 
     await connectMongo();
