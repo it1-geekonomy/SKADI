@@ -15,7 +15,7 @@ const FALLBACK_REFRESH_MS =
   10_000;
 const AUTO_RETELL_SYNC_MS =
   Number.parseInt(process.env.NEXT_PUBLIC_AUTO_RETELL_SYNC_MS ?? "", 10) ||
-  15_000;
+  7_000;
 const ENABLE_SSE = process.env.NEXT_PUBLIC_ENABLE_SSE === "1";
 
 function invalidateDashboardData(
