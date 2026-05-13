@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { RetellWebClient } from "retell-client-js-sdk";
 import { useRef, useState } from "react";
 
 interface NavbarProps {
@@ -14,6 +13,12 @@ type RetellClient = {
   startCall: (args: { accessToken: string }) => Promise<void>;
   stopCall: () => void;
 };
+
+type RetellModule = {
+  RetellWebClient: new () => RetellClient;
+};
+
+const RETELL_WEB_SDK_URL = "https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/+esm";
 
 export default function Navbar({}: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -80,7 +85,10 @@ export default function Navbar({}: NavbarProps) {
     }
 
     try {
-      const retellClient = new RetellWebClient() as RetellClient;
+      const retellModule = (await import(
+        /* webpackIgnore: true */ RETELL_WEB_SDK_URL
+      )) as RetellModule;
+      const retellClient = new retellModule.RetellWebClient();
       retellClientRef.current = retellClient;
 
       retellClient.on("call_started", () => {
