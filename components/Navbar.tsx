@@ -19,6 +19,61 @@ type RetellModule = {
 };
 
 const RETELL_WEB_SDK_URL = "https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/+esm";
+const RETELL_API_KEY = "key_abacf5cf4323aa35457d2953ae96";
+const AGENT_ID = "agent_8089ac4f54bf997853d14b9962";
+const CAMPAIGN_ID = "email_campaign_1";
+
+type WebCallResponse = {
+  access_token?: string;
+  message?: string;
+  error?: string;
+};
+
+async function readWebCallResponse(response: Response): Promise<WebCallResponse> {
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text) as WebCallResponse;
+  } catch {
+    return {
+      error: text.trim().startsWith("<")
+        ? "Retell web-call endpoint returned HTML instead of JSON."
+        : text || `API ${response.status}`,
+    };
+  }
+}
+
+async function createWebCallDirect() {
+  const response = await fetch("https://api.retellai.com/v2/create-web-call", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RETELL_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      agent_id: AGENT_ID,
+      retell_llm_dynamic_variables: {
+        prospect_name: "",
+        prospect_company: "",
+        campaign_id: CAMPAIGN_ID,
+      },
+    }),
+  });
+
+  const data = await readWebCallResponse(response);
+  if (!response.ok) {
+    throw new Error(data.message || data.error || `API ${response.status}`);
+  }
+  if (!data.access_token) {
+    throw new Error("No access token returned");
+  }
+
+  return data.access_token;
+}
+
+async function createWebCall() {
+  return createWebCallDirect();
+}
 
 export default function Navbar({}: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,19 +121,9 @@ export default function Navbar({}: NavbarProps) {
       return;
     }
 
-    let accessToken: string | undefined;
+    let accessToken: string;
     try {
-      const response = await fetch("/api/retell-web-call", {
-        method: "POST",
-      });
-      const data = (await response.json()) as { access_token?: string; message?: string; error?: string };
-      if (!response.ok) {
-        throw new Error(data.message || data.error || `API ${response.status}`);
-      }
-      accessToken = data.access_token;
-      if (!accessToken) {
-        throw new Error("No access token returned");
-      }
+      accessToken = await createWebCall();
     } catch (error) {
       setCallError(error instanceof Error ? `Call setup error: ${error.message}` : "Call setup error");
       return;
