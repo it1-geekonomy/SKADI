@@ -1,14 +1,25 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
+import { useSkadiWebCall } from "@/components/useSkadiWebCall";
 
 interface HeroProps {
   onGetStarted?: () => void;
 }
 
 export default function Hero({ onGetStarted }: HeroProps) {
+  const { callState, callStatus, handleListenClick, listenLabel } = useSkadiWebCall();
+
+  const listenButtonClass =
+    callState === "active"
+      ? "bg-[#e05555] text-white border-[#e05555]"
+      : callState === "connecting"
+        ? "bg-[#3a7a42] text-parchment border-[#3a7a42]"
+        : "bg-transparent text-forest border-forest hover:bg-forest hover:text-parchment";
+
   return (
     <section className="min-h-screen overflow-hidden relative">
-      <div className="max-w-[1120px] mx-auto px-6 md:px-14 pt-[100px] pb-0">
+      <div className="max-w-[1120px] mx-auto px-6 md:px-14 pt-[120px] pb-0">
         <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-[60px]">
       {/* Left */}
       <div className="pt-10">
@@ -35,18 +46,33 @@ export default function Hero({ onGetStarted }: HeroProps) {
 
         {/* Actions */}
         <div className="animate-fade-up-4 flex gap-3 flex-wrap">
-          <Link
-            href="#pricing"
+          <button
+            type="button"
+            onClick={onGetStarted}
             className="px-8 py-3.5 bg-forest text-parchment rounded text-[14px] font-medium tracking-[0.04em] transition-all duration-200 hover:bg-canopy hover:-translate-y-px"
           >
             Book Free AI Call Demo
-          </Link>
-          <Link
-            href="#problem"
-            className="px-8 py-3.5 bg-transparent text-forest border border-[1.5px] border-forest rounded text-[14px] font-medium tracking-[0.04em] no-underline transition-all duration-200 hover:bg-forest hover:text-parchment"
+          </button>
+          <button
+            type="button"
+            onClick={handleListenClick}
+            disabled={callState === "connecting"}
+            className={`inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[1.5px] rounded text-[14px] font-medium tracking-[0.04em] no-underline transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-70 ${listenButtonClass}`}
           >
-            Listen to AI Answer a Call
-          </Link>
+            {callState !== "active" && (
+              <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#060d07]">
+                <svg width="8" height="10" viewBox="0 0 8 10" fill="none" aria-hidden="true">
+                  <path d="M1 1L7 5L1 9V1Z" fill="#5fce6b" />
+                </svg>
+              </span>
+            )}
+            <span>{listenLabel}</span>
+          </button>
+          {callStatus && (
+            <p className="basis-full pt-1 text-[11px] uppercase tracking-[0.12em] text-forest">
+              {callStatus}
+            </p>
+          )}
         </div>
       </div>
 
