@@ -2,14 +2,139 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { RetellWebClient } from "retell-client-js-sdk";
+import { useRef, useState } from "react";
 
 interface NavbarProps {
   onBookDemo?: () => void;
 }
 
-export default function Navbar({ onBookDemo }: NavbarProps) {
+type RetellClient = {
+  on: (event: "call_started" | "call_ended" | "error", callback: (...args: unknown[]) => void) => void;
+  startCall: (args: { accessToken: string }) => Promise<void>;
+  stopCall: () => void;
+};
+
+export default function Navbar({}: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [callState, setCallState] = useState<"idle" | "connecting" | "active" | "ended">("idle");
+  const [callStatus, setCallStatus] = useState("");
+  const retellClientRef = useRef<RetellClient | null>(null);
+
+  const resetCall = () => {
+    setCallState("idle");
+    setCallStatus("");
+  };
+
+  const setCallError = (message: string) => {
+    retellClientRef.current = null;
+    resetCall();
+    setCallStatus(message);
+  };
+
+  const startCall = async () => {
+    setCallState("connecting");
+    setCallStatus("Creating call session...");
+
+    if (!window.isSecureContext) {
+      setCallError("Open this page on localhost or HTTPS to use the microphone.");
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCallError("Open this page on localhost or HTTPS to use the microphone.");
+      return;
+    }
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "NotFoundError") {
+        setCallError("No microphone was found.");
+        return;
+      }
+      if (error instanceof DOMException && error.name === "NotAllowedError") {
+        setCallError("Allow microphone access, then click again.");
+        return;
+      }
+      setCallError("Microphone access is required.");
+      return;
+    }
+
+    let accessToken: string | undefined;
+    try {
+      const response = await fetch("/api/retell-web-call", {
+        method: "POST",
+      });
+      const data = (await response.json()) as { access_token?: string; message?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(data.message || data.error || `API ${response.status}`);
+      }
+      accessToken = data.access_token;
+      if (!accessToken) {
+        throw new Error("No access token returned");
+      }
+    } catch (error) {
+      setCallError(error instanceof Error ? `Call setup error: ${error.message}` : "Call setup error");
+      return;
+    }
+
+    try {
+      const retellClient = new RetellWebClient() as RetellClient;
+      retellClientRef.current = retellClient;
+
+      retellClient.on("call_started", () => {
+        setCallState("active");
+        setCallStatus("Live - Skadi is listening");
+      });
+      retellClient.on("call_ended", () => {
+        retellClientRef.current = null;
+        setCallState("ended");
+        setCallStatus("Call ended. Thanks for listening.");
+      });
+      retellClient.on("error", (error) => {
+        const message = error instanceof Error ? error.message : "Unknown SDK error";
+        setCallError(`SDK error: ${message}`);
+      });
+
+      await retellClient.startCall({ accessToken });
+    } catch (error) {
+      retellClientRef.current = null;
+      setCallError(error instanceof Error ? `Connect error: ${error.message}` : "Connect error");
+    }
+  };
+
+  const endCall = () => {
+    retellClientRef.current?.stopCall();
+    retellClientRef.current = null;
+    setCallState("ended");
+    setCallStatus("Call ended. Thanks for listening.");
+  };
+
+  const handleListenClick = () => {
+    if (callState === "active") {
+      endCall();
+      return;
+    }
+    void startCall();
+  };
+
+  const listenLabel =
+    callState === "connecting"
+      ? "Connecting..."
+      : callState === "active"
+        ? "End Call"
+        : callState === "ended"
+          ? "Listen Again"
+          : "Listen to Skadi in Action";
+
+  const listenButtonClass =
+    callState === "active"
+      ? "bg-[#e05555] text-white"
+      : callState === "connecting"
+        ? "bg-[#3a7a42] text-[#060d07]"
+        : "bg-[#5fce6b] text-[#060d07]";
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between pr-6 h-[68px] bg-[rgba(245,240,232,0.96)] backdrop-blur-[16px] border-b border-stone">
@@ -44,12 +169,29 @@ export default function Navbar({ onBookDemo }: NavbarProps) {
         </ul>
 
         {/* Desktop CTA */}
-        <button
-          onClick={onBookDemo}
-          className="hidden lg:block text-[13px] font-medium px-6 py-2.5 bg-forest text-parchment rounded tracking-[0.04em] transition-colors duration-200 hover:bg-canopy"
-        >
-          Book a Demo
-        </button>
+        <div className="relative hidden lg:block">
+          <button
+            onClick={handleListenClick}
+            disabled={callState === "connecting"}
+            className={`inline-flex items-center justify-center gap-2 px-5 py-3 rounded-none text-[12px] font-medium uppercase tracking-[0.18em] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(95,206,107,0.3)] disabled:cursor-not-allowed disabled:opacity-70 ${listenButtonClass}`}
+            aria-label={listenLabel}
+            title={callStatus || undefined}
+          >
+            {callState !== "active" && (
+              <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#060d07]">
+                <svg width="8" height="10" viewBox="0 0 8 10" fill="none" aria-hidden="true">
+                  <path d="M1 1L7 5L1 9V1Z" fill="#5fce6b" />
+                </svg>
+              </span>
+            )}
+            <span>{listenLabel}</span>
+          </button>
+          {callStatus && (
+            <p className="absolute right-0 top-[calc(100%+6px)] w-[280px] text-right text-[10px] uppercase tracking-[0.1em] text-forest">
+              {callStatus}
+            </p>
+          )}
+        </div>
 
         {/* Mobile Hamburger Menu */}
         <button
@@ -113,12 +255,25 @@ export default function Navbar({ onBookDemo }: NavbarProps) {
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  onBookDemo?.();
+                  handleListenClick();
                 }}
-                className="text-[15px] font-medium px-6 py-3 max-w-[200px] bg-forest text-parchment rounded tracking-[0.04em] transition-all duration-300 hover:bg-canopy hover:scale-105 hover:shadow-lg block text-center transform mx-auto"
+                disabled={callState === "connecting"}
+                className={`mx-auto flex max-w-[280px] items-center justify-center gap-2 px-5 py-3 text-[12px] font-medium uppercase tracking-[0.18em] transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70 ${listenButtonClass}`}
               >
-                Book a Demo
+                {callState !== "active" && (
+                  <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#060d07]">
+                    <svg width="8" height="10" viewBox="0 0 8 10" fill="none" aria-hidden="true">
+                      <path d="M1 1L7 5L1 9V1Z" fill="#5fce6b" />
+                    </svg>
+                  </span>
+                )}
+                <span>{listenLabel}</span>
               </button>
+              {callStatus && (
+                <p className="mt-3 text-center text-[11px] uppercase tracking-[0.12em] text-forest">
+                  {callStatus}
+                </p>
+              )}
             </li>
           </ul>
         </div>
