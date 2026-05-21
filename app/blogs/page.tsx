@@ -11,4 +11,4 @@ const blogs = BLOG_POSTS.map((post) => ({
 
 export default function BlogsPage() {
   return <Blogs blogs={blogs} />;
-}
+}  
