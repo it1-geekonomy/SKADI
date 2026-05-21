@@ -42,7 +42,7 @@ export default function BlogDetailClient() {
       className={`w-full bg-[rgb(245,240,232)] ${
         isVerticalLayout
           ? "min-h-screen overflow-y-auto pt-20 pb-12 sm:pt-24 sm:pb-16 px-4 sm:px-6 md:px-10 lg:px-14 xl:px-20"
-          : `min-h-screen pt-32 pb-4 sm:pb-4 px-4 sm:px-6 md:px-10 lg:pb-24${splitRowLg} lg:overflow-hidden`
+          : `min-h-screen pt-20 pb-4 sm:pb-4 px-4 sm:px-6 md:px-10 lg:pb-24${splitRowLg} lg:overflow-hidden`
       }`}
     >
       {isVerticalLayout ? (
