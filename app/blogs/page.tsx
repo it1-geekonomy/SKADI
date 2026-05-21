@@ -1,6 +1,14 @@
 import Blogs from "@/components/Blogs";
+import { BLOG_POSTS } from "@/lib/constants/blogs";
 
-/** Listing loads from GET /api/blogs (same JSON files as each `/api/blogs/[slug]` post). */
+const blogs = BLOG_POSTS.map((post) => ({
+  id: post.id,
+  slug: post.slug,
+  title: post.title,
+  metaTitle: post.metaTitle,
+  image: post.image,
+}));
+
 export default function BlogsPage() {
-  return <Blogs />;
+  return <Blogs blogs={blogs} />;
 }

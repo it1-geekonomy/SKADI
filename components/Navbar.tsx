@@ -40,6 +40,7 @@ export default function Navbar({}: NavbarProps) {
             { label: "ROI Calculator", href: "#roi" },
             { label: "How We Fix It", href: "#fix" },
             { label: "Pricing", href: "#pricing" },
+            { label: "Blogs", href: "/blogs" },
           ].map((item) => (
             <li key={item.href}>
               <Link
@@ -104,6 +105,7 @@ export default function Navbar({}: NavbarProps) {
               { label: "How We Fix It", href: "#fix", delay: 50 },
               { label: "ROI Calculator", href: "#roi", delay: 100 },
               { label: "Pricing", href: "#pricing", delay: 150 },
+              { label: "Blogs", href: "/blogs", delay: 200 },
             ].map((item) => (
               <li
                 key={item.href}
