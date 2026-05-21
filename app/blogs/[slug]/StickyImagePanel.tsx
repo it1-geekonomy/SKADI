@@ -10,19 +10,19 @@ interface StickyImagePanelProps {
 }
 
 export function StickyImagePanel({ post, activeImage }: StickyImagePanelProps) {
-  const borderColor = "border-neutral-200 dark:border-neutral-800";
-  const [currentImage, setCurrentImage] = useState(activeImage);
+  const [currentImage, setCurrentImage] = useState<string>(() => activeImage || post.image || "");
   const [prevImage, setPrevImage] = useState<string | null>(null);
   const [fading, setFading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (activeImage === currentImage) return;
+    const next = activeImage || post.image || "";
+    if (!next || next === currentImage) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
 
     setPrevImage(currentImage);
-    setCurrentImage(activeImage);
+    setCurrentImage(next);
     setFading(true);
 
     timerRef.current = setTimeout(() => {
@@ -35,31 +35,55 @@ export function StickyImagePanel({ post, activeImage }: StickyImagePanelProps) {
     };
   }, [activeImage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <div
-      className={`relative w-[80%] sm:w-[70%] lg:w-full mx-auto lg:mx-0 h-[220px] sm:h-[300px] lg:h-auto lg:aspect-auto lg:flex-1 lg:min-h-[280px] overflow-hidden border-2 ${borderColor} bg-black/5 dark:bg-black/40 shadow-lg lg:shadow-xl rounded-lg`}
-    >
-      <Image
-        src={currentImage}
-        alt={post.title}
-        fill
-        className="object-contain object-fill"
-        priority
-        sizes="(max-width: 1024px) 100vw, 50vw"
-      />
+  const displayImage = currentImage || post.image || "";
 
-      {/* Old image: sits on top and fades out */}
-      {prevImage && (
+  return (
+    <>
+      {/* Mobile/tablet: fixed 320x320 */}
+      <div className="lg:hidden relative w-[320px] h-[320px] mx-auto overflow-hidden rounded-lg">
         <Image
-          src={prevImage}
+          src={displayImage}
           alt={post.title}
           fill
-          className={`object-contain transition-opacity duration-[280ms] ease-in-out ${
-            fading ? "opacity-0" : "opacity-100"
-          }`}
-          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-contain object-center"
+          priority
+          sizes="320px"
         />
-      )}
-    </div>
+        {prevImage && (
+          <Image
+            src={prevImage}
+            alt={post.title}
+            fill
+            className={`object-contain object-center transition-opacity duration-[280ms] ease-in-out ${
+              fading ? "opacity-0" : "opacity-100"
+            }`}
+            sizes="320px"
+          />
+        )}
+      </div>
+
+      {/* Desktop: full panel, no bg, no border */}
+      <div className="hidden lg:flex relative w-full flex-1 min-h-[280px] overflow-hidden rounded-lg">
+        <Image
+          src={displayImage}
+          alt={post.title}
+          fill
+          className="object-contain object-center"
+          priority
+          sizes="50vw"
+        />
+        {prevImage && (
+          <Image
+            src={prevImage}
+            alt={post.title}
+            fill
+            className={`object-contain object-center transition-opacity duration-[280ms] ease-in-out ${
+              fading ? "opacity-0" : "opacity-100"
+            }`}
+            sizes="50vw"
+          />
+        )}
+      </div>
+    </>
   );
 }

@@ -37,7 +37,6 @@ export default function BlogDetailClient() {
   const hasHtmlContent = Boolean(post.htmlContent?.trim());
   const body = hasHtmlContent ? renderHtmlBody(post) : renderStructuredBody(post);
   const showPageTitle = !hasHtmlContent;
-  // Reduced from 100vh to 92vh so equal space is left top and bottom on desktop
   const splitRowLg = "lg:h-[calc(92vh-6.25rem)]";
 
   return (
@@ -57,9 +56,8 @@ export default function BlogDetailClient() {
               src={imageSrc}
               alt={post.title}
               fill
-              className="object-contain object-fill"
+              className="object-cover object-center"
               priority
-              sizes="100vw"
             />
           </div>
           <div className="flex flex-col gap-6 sm:gap-8 max-w-[900px] mx-auto w-full">
@@ -79,7 +77,10 @@ export default function BlogDetailClient() {
           className={`mx-auto w-full max-w-[1400px] flex flex-col lg:flex-row lg:items-stretch gap-0 lg:gap-10 xl:gap-14 ${splitRowLg} lg:overflow-hidden`}
         >
           {/* RIGHT: sticky image panel */}
-          <div className="sticky top-[5.3rem] lg:top-0 z-20 order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col bg-[rgb(245,240,232)] dark:bg-neutral-900 pt-8 lg:pt-0">
+          <div
+            data-sticky-panel
+            className="sticky top-[5.3rem] lg:top-0 z-20 order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col bg-[rgb(245,240,232)] dark:bg-neutral-900 pt-8 lg:pt-0"
+          >
             <StickyImagePanel post={post} activeImage={activeImage} />
             <div className="h-6 w-full bg-[rgb(245,240,232)] dark:bg-neutral-900 flex-shrink-0 lg:hidden" />
           </div>

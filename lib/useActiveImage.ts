@@ -12,7 +12,6 @@ export function useActiveImage(
   const lastAssignedImage = useRef(coverImage);
   const hasCrossedFirstSection = useRef(false);
 
-  // Reset whenever the post (and thus cover image) changes
   useEffect(() => {
     setActiveImage(coverImage);
     lastAssignedImage.current = coverImage;
@@ -35,16 +34,31 @@ export function useActiveImage(
       );
       if (sentinels.length === 0) return;
 
-      const scrollTop = isMobile ? window.scrollY : container.scrollTop;
-      const clientHeight = isMobile ? window.innerHeight : container.clientHeight;
-      const triggerOffset = clientHeight * 0.3;
+      let triggerY: number;
+
+      if (isMobile) {
+        const stickyPanel = document.querySelector<HTMLElement>(
+          "[data-sticky-panel]"
+        );
+        if (stickyPanel) {
+          const rect = stickyPanel.getBoundingClientRect();
+          // Subtract 2px so the heading must fully clear the panel bottom
+          // before the image swaps — no partial-heading flicker
+          triggerY = rect.bottom + window.scrollY - 2;
+        } else {
+          triggerY = window.scrollY + 85 + 8;
+        }
+      } else {
+        // Desktop: 30% of the scrollable container's visible height
+        triggerY = container.scrollTop + container.clientHeight * 0.3;
+      }
 
       const firstSentinel = sentinels[0];
       const firstSentinelPos = isMobile
         ? firstSentinel.getBoundingClientRect().top + window.scrollY
         : firstSentinel.offsetTop;
 
-      if (firstSentinelPos > scrollTop + triggerOffset) {
+      if (firstSentinelPos > triggerY) {
         if (!hasCrossedFirstSection.current) {
           lastAssignedImage.current = coverImage;
           setActiveImage(coverImage);
@@ -59,7 +73,7 @@ export function useActiveImage(
           ? sentinel.getBoundingClientRect().top + window.scrollY
           : sentinel.offsetTop;
 
-        if (sentinelPos > scrollTop + triggerOffset) break;
+        if (sentinelPos > triggerY) break;
 
         const key = sentinel.dataset.h2Sentinel!;
         if (post.sectionImages![key]) {
