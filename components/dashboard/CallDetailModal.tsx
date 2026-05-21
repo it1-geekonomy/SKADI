@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React from "react";
 
 interface TranscriptMessage {
   role: "agent" | "user";
@@ -19,7 +19,6 @@ interface CallDetail {
   direction: string;
   outcome: string;
   status: string;
-  /** From Retell call_status */
   callStatusLabel: string;
   callId: string;
   version: number;
@@ -30,7 +29,6 @@ interface CallDetail {
   summary: string;
   transcript: TranscriptMessage[];
   agentLine: string;
-  /** Retell recording URL when available */
   recordingUrl: string | null;
 }
 
@@ -43,290 +41,284 @@ interface CallDetailModalProps {
 export function CallDetailModal({ isOpen, onClose, call }: CallDetailModalProps) {
   if (!isOpen || !call) return null;
 
-  const [tab, setTab] = useState<"transcript" | "data">("transcript");
-  const agentName = useMemo(() => {
-    // agentLine looks like: "Skadi (agent_...) · Version: 1"
-    return call.agentLine.split(" (")[0] || "Agent";
-  }, [call.agentLine]);
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity font-geist">
-      <div className="bg-surface border border-border rounded-[12px] w-full max-w-[680px] max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-fade-up">
-        
-        {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-border bg-surface">
-          <div>
-            <div className="text-[15px] font-semibold text-text-main">
-              {call.date} · {call.time} · {call.direction}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <InfoPill label="Duration" value={call.duration} mono />
-              <InfoPill label="Outcome" value={call.outcome} />
-              <InfoPill label="From" value={call.caller} mono />
-              <InfoPill label="To" value={call.to} mono />
-            </div>
-          </div>
-          <button 
-            onClick={onClose}
-            className="w-[26px] h-[26px] rounded-md bg-surface-hover border border-border flex items-center justify-center text-text-dim hover:text-text-main hover:bg-surface3 transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+    <>
+      <style>{`
+        .cdm-modal-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+          background: rgba(0,0,0,0.35);
+        }
+        .cdm-modal {
+          background: #ffffff;
+          border-radius: 14px;
+          width: 100%;
+          max-width: 560px;
+          max-height: 92vh;
+          display: flex;
+          flex-direction: column;
+          box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+          overflow: hidden;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .cdm-header {
+          padding: 16px 16px 14px;
+          border-bottom: 1px solid #f0f0f0;
+          flex-shrink: 0;
+        }
+        .cdm-header-row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 8px;
+        }
+        .cdm-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #111;
+          margin-bottom: 10px;
+          line-height: 1.3;
+        }
+        .cdm-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .cdm-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: #f2f2f2;
+          border: 1px solid #e5e5e5;
+          font-size: 11px;
+          color: #888;
+          white-space: nowrap;
+        }
+        .cdm-pill-val {
+          color: #111;
+          font-weight: 500;
+        }
+        .cdm-pill-val.mono {
+          font-family: monospace;
+          font-size: 10.5px;
+        }
+        .cdm-close {
+          width: 28px;
+          height: 28px;
+          min-width: 28px;
+          border-radius: 50%;
+          border: 1px solid #e5e5e5;
+          background: #f5f5f5;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          color: #888;
+        }
+        .cdm-body {
+          overflow-y: auto;
+          padding: 16px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .cdm-audio-box {
+          background: #f7f7f7;
+          border-radius: 10px;
+          padding: 10px 14px;
+          border: 1px solid #ebebeb;
+        }
+        .cdm-section-label {
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #aaa;
+          margin-bottom: 10px;
+        }
 
-        <div className="modal-body overflow-y-auto p-5 space-y-6 flex-1 bg-bg/30">
-          
-          <div className="bg-surface-hover border border-border rounded-[8px] p-3">
-            {call.recordingUrl ? (
-              <audio
-                key={call.recordingUrl}
-                controls
-                preload="metadata"
-                className="w-full h-10"
-                src={call.recordingUrl}
-              >
-                Your browser does not support audio playback.
-              </audio>
-            ) : (
-              <p className="text-[11px] text-text-muted leading-relaxed">
-                No recording URL in this call payload. In Retell, recordings appear after the call ends and when storage/recording is enabled for the agent.
-              </p>
-            )}
-          </div>
+        /* Insight grid — 2 cols on ≥400px, 1 col below */
+        .cdm-insights-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+        @media (min-width: 400px) {
+          .cdm-insights-grid {
+            grid-template-columns: 1fr 1fr;
+          }
+          .cdm-insight-full {
+            grid-column: 1 / -1;
+          }
+        }
 
-          {/* Insights */}
-          <div className="space-y-3">
-            <h4 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted">
-              Call insights
-            </h4>
-            <div className="grid grid-cols-2 gap-2.5">
-              <AnalysisRow
-                label="Call result"
-                value={call.status === "Completed" ? "Successful" : "Unsuccessful"}
-                isBadge
-                badgeColor={
-                  call.status === "Completed"
-                    ? "bg-green-500/10 text-green-500"
-                    : "bg-red-500/10 text-red-500"
-                }
-              />
-              <AnalysisRow label="Call status" value={call.callStatusLabel} />
-              <AnalysisRow
-                label="User sentiment"
-                value={call.sentiment}
-                isBadge
-                badgeColor={
-                  call.sentiment === "Positive"
-                    ? "bg-green-500/10 text-green-500"
-                    : call.sentiment === "Neutral"
-                      ? "bg-yellow-500/10 text-yellow-500"
-                      : "bg-red-500/10 text-red-500"
-                }
-              />
-              <AnalysisRow label="Disconnection" value={call.disconnect} />
-              <AnalysisRow label="End-to-end latency" value={call.latency} isFullWidth />
-            </div>
-          </div>
+        .cdm-insight-cell {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          padding: 10px 12px;
+          background: #f7f7f7;
+          border: 1px solid #ebebeb;
+          border-radius: 8px;
+          min-width: 0;
+        }
+        .cdm-insight-label {
+          font-size: 11px;
+          color: #888;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .cdm-insight-value {
+          font-size: 12px;
+          font-weight: 500;
+          color: #111;
+          text-align: right;
+          white-space: nowrap;
+        }
+        .cdm-badge {
+          font-size: 11px;
+          font-weight: 600;
+          padding: 2px 10px;
+          border-radius: 999px;
+          white-space: nowrap;
+        }
+        .cdm-summary-box {
+          background: #f9f9f9;
+          border: 1px solid #ebebeb;
+          border-radius: 10px;
+          padding: 14px 16px;
+        }
+        .cdm-summary-text {
+          font-size: 13px;
+          color: #555;
+          line-height: 1.6;
+          margin: 0;
+        }
+      `}</style>
 
-          {/* Summary */}
-          <div className="bg-surface-hover border border-border rounded-[8px] p-4">
-            <h4 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted mb-2">Summary</h4>
-            <p className="text-[12px] text-text-dim leading-relaxed">{call.summary}</p>
-          </div>
+      <div className="cdm-modal-overlay">
+        <div className="cdm-modal">
 
-          {/* Tabs */}
-          <div className="space-y-4">
-            <div className="flex gap-4 border-b border-border">
-              <TabButton
-                active={tab === "transcript"}
-                onClick={() => setTab("transcript")}
-              >
-                Transcription
-              </TabButton>
-              <TabButton active={tab === "data"} onClick={() => setTab("data")}>
-                Data
-              </TabButton>
-            </div>
-            
-            {tab === "transcript" ? (
-              <div className="space-y-4">
-                {call.transcript.length === 0 ? (
-                  <div className="text-[12px] text-text-muted">
-                    No transcript in this payload.
-                  </div>
-                ) : (
-                  call.transcript.map((m, idx) => (
-                    <ChatBubble
-                      key={idx}
-                      side={m.role === "agent" ? "right" : "left"}
-                      ts={m.ts}
-                      text={m.text}
-                    />
-                  ))
-                )}
+          {/* Header */}
+          <div className="cdm-header">
+            <div className="cdm-header-row">
+              <div style={{ minWidth: 0 }}>
+                <div className="cdm-title">
+                  {call.date} · {call.time} · {call.direction}
+                </div>
+                <div className="cdm-pills">
+                  <span className="cdm-pill">
+                    Duration <span className="cdm-pill-val mono">{call.duration}</span>
+                  </span>
+                  <span className="cdm-pill">
+                    Outcome <span className="cdm-pill-val">{call.outcome}</span>
+                  </span>
+                  <span className="cdm-pill">
+                    From <span className="cdm-pill-val mono">{call.caller}</span>
+                  </span>
+                  <span className="cdm-pill">
+                    To <span className="cdm-pill-val mono">{call.to}</span>
+                  </span>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <KeyValue label="Agent" value={agentName} />
-                <KeyValue
-                  label="Call ID"
-                  value={call.id}
-                  mono
-                  onCopy={() => void navigator.clipboard.writeText(call.id)}
-                />
-                <KeyValue label="From" value={call.caller} mono />
-                <KeyValue label="To" value={call.to} mono />
-                <KeyValue label="Outcome" value={call.outcome} />
-                <KeyValue label="Duration" value={call.duration} mono />
-                <KeyValue label="Tokens" value={call.tokens} mono />
-                <KeyValue label="Latency" value={call.latency} mono />
-                <KeyValue label="Status" value={call.callStatusLabel} />
-                <KeyValue label="Disconnection" value={call.disconnect} />
+              <button className="cdm-close" onClick={onClose}>✕</button>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="cdm-body">
+
+            {/* Audio */}
+            <div className="cdm-audio-box">
+              {call.recordingUrl ? (
+                <audio
+                  key={call.recordingUrl}
+                  controls
+                  preload="metadata"
+                  style={{ width: "100%", height: "36px" }}
+                  src={call.recordingUrl}
+                >
+                  Your browser does not support audio playback.
+                </audio>
+              ) : (
+                <p style={{ fontSize: "11px", color: "#aaa", margin: 0 }}>
+                  No recording available.
+                </p>
+              )}
+            </div>
+
+            {/* Insights */}
+            <div>
+              <div className="cdm-section-label">Call Insights</div>
+              <div className="cdm-insights-grid">
+
+                <div className="cdm-insight-cell">
+                  <span className="cdm-insight-label">Call result</span>
+                  <span
+                    className="cdm-badge"
+                    style={
+                      call.status === "Completed"
+                        ? { background: "#e6faf0", color: "#16a34a" }
+                        : { background: "#fef2f2", color: "#dc2626" }
+                    }
+                  >
+                    {call.status === "Completed" ? "Successful" : "Unsuccessful"}
+                  </span>
+                </div>
+
+                <div className="cdm-insight-cell">
+                  <span className="cdm-insight-label">Call status</span>
+                  <span className="cdm-insight-value">{call.callStatusLabel}</span>
+                </div>
+
+                <div className="cdm-insight-cell">
+                  <span className="cdm-insight-label">User sentiment</span>
+                  <span
+                    className="cdm-badge"
+                    style={
+                      call.sentiment === "Positive"
+                        ? { background: "#e6faf0", color: "#16a34a" }
+                        : call.sentiment === "Neutral"
+                          ? { background: "#fefce8", color: "#ca8a04" }
+                          : { background: "#fef2f2", color: "#dc2626" }
+                    }
+                  >
+                    {call.sentiment}
+                  </span>
+                </div>
+
+                <div className="cdm-insight-cell">
+                  <span className="cdm-insight-label">Disconnection</span>
+                  <span className="cdm-insight-value">{call.disconnect}</span>
+                </div>
+
+                <div className="cdm-insight-cell cdm-insight-full">
+                  <span className="cdm-insight-label">End-to-end latency</span>
+                  <span className="cdm-insight-value">{call.latency}</span>
+                </div>
+
               </div>
-            )}
+            </div>
+
+            {/* Summary */}
+            <div className="cdm-summary-box">
+              <div className="cdm-section-label">Summary</div>
+              <p className="cdm-summary-text">{call.summary}</p>
+            </div>
+
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`px-1 py-2 text-[12px] font-medium -mb-[1px] border-b-2 ${
-        active
-          ? "text-text-main border-accent"
-          : "text-text-muted border-transparent hover:text-text-main"
-      } transition-colors`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function InfoPill({
-  label,
-  value,
-  mono,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
-  return (
-    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-surface-hover border border-border text-[11px] text-text-dim">
-      <span className="text-text-muted">{label}</span>
-      <span className={mono ? "font-mono text-text-main" : "text-text-main"}>
-        {value}
-      </span>
-    </span>
-  );
-}
-
-function KeyValue({
-  label,
-  value,
-  mono,
-  onCopy,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  onCopy?: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between p-2.5 bg-surface-hover border border-border rounded-[8px]">
-      <span className="text-[11px] text-text-dim">{label}</span>
-      <span className="flex items-center gap-2">
-        <span
-          className={`text-[12px] font-medium text-text-main ${
-            mono ? "font-mono" : ""
-          }`}
-        >
-          {value}
-        </span>
-        {onCopy ? (
-          <button
-            type="button"
-            onClick={onCopy}
-            className="text-[11px] px-2 py-1 rounded-md border border-border bg-surface text-text-dim hover:text-text-main hover:bg-surface3 transition-colors"
-          >
-            Copy
-          </button>
-        ) : null}
-      </span>
-    </div>
-  );
-}
-
-function ChatBubble({
-  side,
-  ts,
-  text,
-}: {
-  side: "left" | "right";
-  ts: string;
-  text: string;
-}) {
-  const isRight = side === "right";
-  const speakerLabel = isRight ? "Agent" : "User";
-  return (
-    <div className={`flex ${isRight ? "justify-end" : "justify-start"}`}>
-      <div className="max-w-[78%] min-w-[120px]">
-        <div
-          className={`px-1 mb-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${
-            isRight ? "text-accent text-right" : "text-text-muted text-left"
-          }`}
-        >
-          {speakerLabel}
-        </div>
-        <div
-          className={`px-3 py-2.5 rounded-2xl text-[12px] leading-relaxed border shadow-sm ${
-            isRight
-              ? "bg-accent-glow border-accent/30 text-text-main"
-              : "bg-surface-hover border-border text-text-main"
-          }`}
-          style={{
-            borderTopRightRadius: isRight ? 6 : undefined,
-            borderTopLeftRadius: !isRight ? 6 : undefined,
-          }}
-        >
-          {text}
-        </div>
-        <div
-          className={`mt-1 text-[10px] text-text-muted font-mono ${
-            isRight ? "text-right" : "text-left"
-          }`}
-        >
-          {ts}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AnalysisRow({ label, value, isBadge, badgeColor, isFullWidth }: { label: string; value: string; isBadge?: boolean; badgeColor?: string; isFullWidth?: boolean }) {
-  return (
-    <div className={`flex items-center justify-between p-2.5 bg-surface-hover border border-border rounded-[8px] ${isFullWidth ? "col-span-2" : ""}`}>
-      <span className="text-[11px] text-text-dim flex items-center gap-1.5">{label}</span>
-      {isBadge ? (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${badgeColor}`}>
-          {value}
-        </span>
-      ) : (
-        <span className="text-[12px] font-medium text-text-main">{value}</span>
-      )}
-    </div>
+    </>
   );
 }
