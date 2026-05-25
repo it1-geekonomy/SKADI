@@ -30,19 +30,21 @@ export default function BlogDetailClient() {
       </div>
     );
   }
+
   const borderColor = "border-neutral-200 dark:border-neutral-800";
   const imageSrc = post.image || "/Blog/Blog11.webp";
   const isVerticalLayout = post.slug === "automation-ai";
   const hasHtmlContent = Boolean(post.htmlContent?.trim());
   const body = hasHtmlContent ? renderHtmlBody(post) : renderStructuredBody(post);
   const showPageTitle = !hasHtmlContent;
-  const splitRowLg = "lg:h-[calc(100vh-6.25rem)]";
+  const splitRowLg = "lg:h-[calc(92vh-6.25rem)]";
+
   return (
     <main
       className={`w-full bg-[rgb(245,240,232)] ${
         isVerticalLayout
           ? "min-h-screen overflow-y-auto pt-20 pb-12 sm:pt-24 sm:pb-16 px-4 sm:px-6 md:px-10 lg:px-14 xl:px-20"
-          : `min-h-screen pt-32 pb-4 sm:pb-4 px-4 sm:px-6 md:px-10 lg:pb-24${splitRowLg} lg:overflow-hidden`
+          : `min-h-screen pt-20 pb-4 sm:pb-4 px-4 sm:px-6 md:px-10 lg:flex lg:items-center lg:justify-center lg:pb-0 lg:min-h-screen`
       }`}
     >
       {isVerticalLayout ? (
@@ -54,9 +56,8 @@ export default function BlogDetailClient() {
               src={imageSrc}
               alt={post.title}
               fill
-              className="object-contain object-fill"
+              className="object-cover object-center"
               priority
-              sizes="100vw"
             />
           </div>
           <div className="flex flex-col gap-6 sm:gap-8 max-w-[900px] mx-auto w-full">
@@ -73,12 +74,18 @@ export default function BlogDetailClient() {
         </div>
       ) : (
         <div
-          className={`mx-auto w-full max-w-[1400px] flex flex-col lg:flex-row lg:items-stretch gap-0 lg:gap-10 xl:gap-14 ${splitRowLg}`}
+          className={`mx-auto w-full max-w-[1400px] flex flex-col lg:flex-row lg:items-stretch gap-0 lg:gap-10 xl:gap-14 ${splitRowLg} lg:overflow-hidden`}
         >
-          <div className="sticky top-[5.3rem] lg:top-0 z-20 order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col bg-[rgb(245,240,232)] dark:bg-neutral-900 pt-8 lg:pt-0">
+          {/* RIGHT: sticky image panel */}
+          <div
+            data-sticky-panel
+            className="sticky top-[5.3rem] lg:top-0 z-20 order-1 lg:order-2 w-full lg:flex-1 lg:min-w-0 flex flex-col bg-[rgb(245,240,232)] dark:bg-neutral-900 pt-8 lg:pt-0"
+          >
             <StickyImagePanel post={post} activeImage={activeImage} />
             <div className="h-6 w-full bg-[rgb(245,240,232)] dark:bg-neutral-900 flex-shrink-0 lg:hidden" />
           </div>
+
+          {/* LEFT: scrollable content */}
           <div
             ref={scrollRef}
             className="order-2 lg:order-1 w-full lg:flex-1 lg:min-w-0 min-h-0 flex flex-col lg:overflow-y-auto lg:pr-2 xl:pr-4 scrollbar-hide pt-2 lg:pt-0 pb-2 lg:pb-0"
