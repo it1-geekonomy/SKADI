@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Hero from "@/components/Hero";
 import Problem from "@/components/Problem";
@@ -10,10 +10,12 @@ import ROICalculator from "@/components/ROICalculator";
 import Industries from "@/components/Industries";
 import Pricing from "@/components/Pricing";
 import CTA from "@/components/CTA";
+import BookingModal from "@/components/BookingModal";
 
 export default function LandingPage() {
   const router = useRouter();
   const pricingRef = useRef<HTMLDivElement>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const openBookingModal = () => router.push("/listentoskadi", { scroll: false });
 
@@ -23,7 +25,7 @@ export default function LandingPage() {
 
   return (
     <>
-      <Hero onGetStarted={scrollToPricing} />
+      <Hero onGetStarted={openBookingModal} />
       <Problem />
       <Industries />
       <ROICalculator />
@@ -32,6 +34,7 @@ export default function LandingPage() {
       <Testimonial />
       <Pricing ref={pricingRef} onBookDemo={openBookingModal} />
       <CTA onBookDemo={openBookingModal} />
+      <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </>
   );
 }
