@@ -34,6 +34,25 @@ function shortUa(ua?: string): string {
   return s.length > 72 ? `${s.slice(0, 72)}…` : s;
 }
 
+function deviceFromUa(ua?: string): "Mobile" | "Desktop" | "Unknown" {
+  const s = (ua ?? "").toLowerCase();
+  if (!s.trim()) return "Unknown";
+  if (s.includes("mobile") || s.includes("android") || s.includes("iphone")) {
+    return "Mobile";
+  }
+  return "Desktop";
+}
+
+function refererHost(ref?: string): string {
+  const raw = (ref ?? "").trim();
+  if (!raw) return "—";
+  try {
+    return new URL(raw).host || "—";
+  } catch {
+    return raw.length > 42 ? `${raw.slice(0, 42)}…` : raw;
+  }
+}
+
 export default function CtaClicksPage() {
   const [rows, setRows] = useState<ClickRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,6 +154,9 @@ export default function CtaClicksPage() {
                   <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
                     IP
                   </th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
+                    Device
+                  </th>
                   {geoPresent ? (
                     <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
                       Geo
@@ -142,6 +164,9 @@ export default function CtaClicksPage() {
                   ) : null}
                   <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
                     Page
+                  </th>
+                  <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
+                    Referrer
                   </th>
                   <th className="px-5 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted border-b border-border whitespace-nowrap">
                     User-Agent
@@ -168,6 +193,9 @@ export default function CtaClicksPage() {
                       <td className="px-5 py-3 text-[12px] text-text-main whitespace-nowrap tabular-nums">
                         {(r.ip ?? "").trim() || "—"}
                       </td>
+                      <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">
+                        {deviceFromUa(r.user_agent)}
+                      </td>
                       {geoPresent ? (
                         <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">
                           {geo || "—"}
@@ -176,7 +204,16 @@ export default function CtaClicksPage() {
                       <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">
                         {(r.path ?? "").trim() || "—"}
                       </td>
-                      <td className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap">
+                      <td
+                        className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap"
+                        title={(r.referer ?? "").trim() || undefined}
+                      >
+                        {refererHost(r.referer)}
+                      </td>
+                      <td
+                        className="px-5 py-3 text-[12px] text-text-dim whitespace-nowrap"
+                        title={(r.user_agent ?? "").trim() || undefined}
+                      >
                         {shortUa(r.user_agent)}
                       </td>
                     </tr>
