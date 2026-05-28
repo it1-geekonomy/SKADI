@@ -72,6 +72,21 @@ export function useSkadiWebCall() {
   const [callStatus, setCallStatus] = useState("");
   const retellClientRef = useRef<RetellClient | null>(null);
 
+  const trackCtaClick = () => {
+    try {
+      void fetch("/api/cta-click", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cta: "listen_skadi_in_action",
+          call_state: callState,
+        }),
+      });
+    } catch {
+      // best-effort; ignore tracking failures
+    }
+  };
+
   const resetCall = () => {
     setCallState("idle");
     setCallStatus("");
@@ -151,6 +166,7 @@ export function useSkadiWebCall() {
   };
 
   const handleListenClick = () => {
+    trackCtaClick();
     if (callState === "active") {
       endCall();
       return;

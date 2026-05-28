@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sidebar, DashboardIcon, HistoryIcon, TranscriptIcon, AnalyticsIcon, SettingsIcon, UsersIcon } from "@/components/dashboard/Sidebar";
+import { Sidebar, DashboardIcon, HistoryIcon, TranscriptIcon, AnalyticsIcon, SettingsIcon, UsersIcon, ClickIcon } from "@/components/dashboard/Sidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 import { DashboardThemeRoot } from "@/components/dashboard/DashboardThemeRoot";
 import { RealtimeSync } from "@/lib/store/useRealtimeSync";
@@ -18,6 +18,7 @@ export default function AdminDashboardLayout({
   const getTitle = () => {
     if (pathname.includes("/clients")) return "Clients Management";
     if (pathname.includes("/settings")) return "System Settings";
+    if (pathname.includes("/cta-clicks")) return "CTA Clicks";
     return "Admin Overview";
   };
 
@@ -35,6 +36,7 @@ export default function AdminDashboardLayout({
       label: "Admin",
       items: [
         { label: "Clients", href: "/admin/clients", icon: <UsersIcon /> },
+        { label: "CTA Clicks", href: "/admin/cta-clicks", icon: <ClickIcon /> },
       ],
     },
     {
