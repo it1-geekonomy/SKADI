@@ -22,7 +22,7 @@ export type SkadiCallState = "idle" | "connecting" | "active" | "ended";
 
 const RETELL_WEB_SDK_URL = "https://cdn.jsdelivr.net/npm/retell-client-js-sdk@latest/+esm";
 const RETELL_API_KEY = "key_abacf5cf4323aa35457d2953ae96";
-const AGENT_ID = "agent_8089ac4f54bf997853d14b9962";
+const AGENT_ID = "agent_e2296d7b8a062fdaa8125e4c2d";
 const CAMPAIGN_ID = "email_campaign_1";
 
 async function readWebCallResponse(response: Response): Promise<WebCallResponse> {
