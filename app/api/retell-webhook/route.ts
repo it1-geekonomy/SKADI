@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { Retell } from 'retell-sdk';
 import { connectMongo } from '@/lib/mongodb';
 import { retellGetCall } from '@/lib/retell-client';
@@ -108,6 +109,30 @@ async function retellGetCallWithRetry(callId: string): Promise<RetellCallItem> {
   throw lastError;
 }
 
+function verifyRetellSignature(rawBody: string, apiKey: string, sigHeader: string): boolean {
+  try {
+    const match = sigHeader.match(/v=(\d+),d=(.*)/);
+    if (!match) return false;
+    const [, timestamp, providedDigest] = match;
+
+    const expectedDigest = crypto
+      .createHmac('sha256', apiKey)
+      .update(rawBody + timestamp)
+      .digest('hex');
+
+    const providedBuffer = Buffer.from(providedDigest, 'hex');
+    const expectedBuffer = Buffer.from(expectedDigest, 'hex');
+
+    if (providedBuffer.length !== expectedBuffer.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(providedBuffer, expectedBuffer);
+  } catch (err) {
+    console.error('[retell-webhook] signature verification error', err);
+    return false;
+  }
+}
+
 function hasDisplayablePhoneNumber(fields: ReturnType<typeof toCallFields>) {
   if (!fields) return false;
   return fields.from_number.trim() !== '' || fields.to_number.trim() !== '';
@@ -132,7 +157,7 @@ export async function POST(request: Request) {
       request.headers.get('x-retell-signature') ??
       request.headers.get('X-Retell-Signature');
     const valid =
-      typeof sig === 'string' && Retell.verify(rawBody, apiKey, sig);
+      typeof sig === 'string' && verifyRetellSignature(rawBody, apiKey, sig);
     if (!valid) {
       console.warn('[retell-webhook] invalid or missing signature');
       if (enforceSig) {
