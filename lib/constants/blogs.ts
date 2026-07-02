@@ -5,6 +5,7 @@ import automateCustomerCallsUsingAi from "./posts/automate-customer-calls-using-
 import handle100PlusCustomerCallsWithoutCallCenter from "./posts/handle-100-plus-customer-calls-without-call-center.json";
 import growingBusinessesAutomateCallsAiSolutions from "./posts/growing-businesses-automate-calls-ai-solutions.json";
 import businessLosingLeadsDueToMissedCalls from "./posts/business-losing-leads-due-to-missed-calls.json";
+import howToNeverMissACustomerCallAgain from "./posts/how-to-never-miss-a-customer-call-again.json";
 
 export type BlogContentItem = {
   type: "paragraph" | "heading" | "subheading" | "list" | "table";
@@ -27,6 +28,7 @@ export type BlogPost = {
 };
 
 const blogPostsRaw = [
+  howToNeverMissACustomerCallAgain,
   businessLosingLeadsDueToMissedCalls,
   growingBusinessesAutomateCallsAiSolutions,
   handle100PlusCustomerCallsWithoutCallCenter,
