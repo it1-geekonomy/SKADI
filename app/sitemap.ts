@@ -54,6 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'reduce-missed-calls-small-business': 0.8,
     'ai-voice-agents-increase-sales-conversions': 0.7,
     'manual-vs-ai-call-automation-better-for-business': 0.7,
+    'how-to-never-miss-a-customer-call-again': 0.7,
   }
 
   // Blog posts
