@@ -61,7 +61,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map(post => {
     const priority = blogPriorities[post.slug] || 0.6
     return {
-      url: `${baseUrl}/blog/${post.slug}`,
+      url: `${baseUrl}/blogs/${post.slug}`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority,
