@@ -7,6 +7,7 @@ import growingBusinessesAutomateCallsAiSolutions from "./posts/growing-businesse
 import businessLosingLeadsDueToMissedCalls from "./posts/business-losing-leads-due-to-missed-calls.json";
 import howToNeverMissACustomerCallAgain from "./posts/how-to-never-miss-a-customer-call-again.json";
 import howMuchRevenueIndianBusinessesLoseToMissedCalls from "./posts/how-much-revenue-indian-businesses-lose-to-missed-calls.json";
+import why80OfWebsiteLeadsPreferCallingBeforeBuying from "./posts/why-80-of-website-leads-prefer-calling-before-buying.json";
 
 export type BlogContentItem = {
   type: "paragraph" | "heading" | "subheading" | "list" | "table";
@@ -29,6 +30,7 @@ export type BlogPost = {
 };
 
 const blogPostsRaw = [
+  why80OfWebsiteLeadsPreferCallingBeforeBuying,
   howMuchRevenueIndianBusinessesLoseToMissedCalls,
   howToNeverMissACustomerCallAgain,
   businessLosingLeadsDueToMissedCalls,

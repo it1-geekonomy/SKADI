@@ -56,6 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'manual-vs-ai-call-automation-better-for-business': 0.7,
     'how-much-revenue-indian-businesses-lose-to-missed-calls': 0.7,
     'how-to-never-miss-a-customer-call-again': 0.7,
+    'why-80-of-website-leads-prefer-calling-before-buying': 0.7,
   }
 
   // Blog posts
