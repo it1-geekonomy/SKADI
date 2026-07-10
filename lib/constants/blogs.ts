@@ -6,8 +6,9 @@ import handle100PlusCustomerCallsWithoutCallCenter from "./posts/handle-100-plus
 import growingBusinessesAutomateCallsAiSolutions from "./posts/growing-businesses-automate-calls-ai-solutions.json";
 import businessLosingLeadsDueToMissedCalls from "./posts/business-losing-leads-due-to-missed-calls.json";
 import howToNeverMissACustomerCallAgain from "./posts/how-to-never-miss-a-customer-call-again.json";
-import howMuchRevenueIndianBusinessesLoseToMissedCalls from "./posts/how-much-revenue-indian-businesses-lose-to-missed-calls.json";
+import howMuchRevenueUSBusinessesLoseToMissedCalls from "./posts/how-much-revenue-us-businesses-lose-to-missed-calls.json";
 import why80OfWebsiteLeadsPreferCallingBeforeBuying from "./posts/why-80-of-website-leads-prefer-calling-before-buying.json";
+import aiVoiceAgentsBookAppointmentsWithoutHumans from "./posts/ai-voice-agents-book-appointments-without-humans.json";
 
 export type BlogContentItem = {
   type: "paragraph" | "heading" | "subheading" | "list" | "table";
@@ -30,8 +31,9 @@ export type BlogPost = {
 };
 
 const blogPostsRaw = [
+  aiVoiceAgentsBookAppointmentsWithoutHumans,
   why80OfWebsiteLeadsPreferCallingBeforeBuying,
-  howMuchRevenueIndianBusinessesLoseToMissedCalls,
+  howMuchRevenueUSBusinessesLoseToMissedCalls,
   howToNeverMissACustomerCallAgain,
   businessLosingLeadsDueToMissedCalls,
   growingBusinessesAutomateCallsAiSolutions,
