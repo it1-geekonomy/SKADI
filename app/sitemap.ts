@@ -58,6 +58,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     'how-to-never-miss-a-customer-call-again': 0.7,
     'why-80-of-website-leads-prefer-calling-before-buying': 0.7,
     'ai-voice-agents-book-appointments-without-humans': 0.7,
+    'ai-voice-agents-vs-human-receptionists-cost-comparison': 0.7,
   }
 
   // Blog posts

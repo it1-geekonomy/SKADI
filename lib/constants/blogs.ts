@@ -9,6 +9,7 @@ import howToNeverMissACustomerCallAgain from "./posts/how-to-never-miss-a-custom
 import howMuchRevenueUSBusinessesLoseToMissedCalls from "./posts/how-much-revenue-us-businesses-lose-to-missed-calls.json";
 import why80OfWebsiteLeadsPreferCallingBeforeBuying from "./posts/why-80-of-website-leads-prefer-calling-before-buying.json";
 import aiVoiceAgentsBookAppointmentsWithoutHumans from "./posts/ai-voice-agents-book-appointments-without-humans.json";
+import aiVoiceAgentsVsHumanReceptionistsCostComparison from "./posts/ai-voice-agents-vs-human-receptionists-cost-comparison.json";
 
 export type BlogContentItem = {
   type: "paragraph" | "heading" | "subheading" | "list" | "table";
@@ -31,6 +32,7 @@ export type BlogPost = {
 };
 
 const blogPostsRaw = [
+  aiVoiceAgentsVsHumanReceptionistsCostComparison,
   aiVoiceAgentsBookAppointmentsWithoutHumans,
   why80OfWebsiteLeadsPreferCallingBeforeBuying,
   howMuchRevenueUSBusinessesLoseToMissedCalls,
