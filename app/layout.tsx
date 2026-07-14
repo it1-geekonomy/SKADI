@@ -46,7 +46,7 @@ export default function RootLayout({
         className={`${bebasNeue.variable} ${inter.variable} ${poppins.variable} font-inter bg-parchment text-obsidian font-normal`}
       >
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-01BZCT48LM"
+          src="https://www.googletagmanager.com/gtag/js?id=G-16LB9H6FDH"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -54,7 +54,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-01BZCT48LM');
+            gtag('config', 'G-16LB9H6FDH');
           `}
         </Script>
         <StoreProvider>
