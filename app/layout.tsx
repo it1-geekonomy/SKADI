@@ -41,6 +41,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="google-site-verification" content="5D51veGcsxokTotZ8O8SjI9bnbHfojWUeXTVps36lX8" />
+        <meta name="msvalidate.01" content="2C4A40D8C27949A5C618815C1EF6B161" />
       </head>
       <body
         className={`${bebasNeue.variable} ${inter.variable} ${poppins.variable} font-inter bg-parchment text-obsidian font-normal`}
