@@ -1,4 +1,4 @@
-import manualVsAiCallAutomationBetterForBusiness from "./posts/manual-vs-ai-call-automation-better-for-business.json";
+import manualVsAiCallAutomationBetterForBusiness from "./posts/manual-call-vs-ai-call-automation-better-for-business.json";
 import aiVoiceAgentsIncreaseSalesConversions from "./posts/ai-voice-agents-increase-sales-conversions.json";
 import reduceMissedCalls from "./posts/reduce-missed-calls-small-business.json";
 import automateCustomerCallsUsingAi from "./posts/automate-customer-calls-using-ai.json";
