@@ -33,10 +33,21 @@ export default function Home() {
         "contactPoint": {
           "@type": "ContactPoint",
           "contactType": "customer support",
-          "availableLanguage": "English"
+          "email": "connect@theskadi.com",
+          "areaServed": [
+            "US",
+            "CA",
+            "GB",
+            "AU",
+            "NZ",
+            "SG"
+          ],
+          "availableLanguage": [
+            "English"
+          ]
         },
         "sameAs": [
-          "https://www.linkedin.com/company/skadi/"
+          "https://www.facebook.com/people/Skadi/61589043703390/"
         ]
       },
       {
