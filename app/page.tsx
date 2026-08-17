@@ -1,4 +1,5 @@
 import LandingPage from "@/components/LandingPage";
+import { homeFaqs } from "@/lib/constants/faqs";
 
 export default function Home() {
   const schema = {
@@ -62,32 +63,14 @@ export default function Home() {
       {
         "@type": "FAQPage",
         "@id": "https://theskadi.com/#faq",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How can businesses reduce missed calls?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Businesses can reduce missed calls by using AI voice agents that answer customer calls instantly, capture enquiries, and recover lost opportunities 24/7."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What is an AI receptionist?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "An AI receptionist uses artificial intelligence to answer business calls, handle customer questions, qualify leads, and assist with appointment scheduling."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Can AI answer business phone calls?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, AI voice agents can answer business phone calls, manage customer conversations, qualify leads, and provide automated call assistance."
-            }
+        "mainEntity": homeFaqs.map((faq) => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
           }
-        ]
+        }))
       }
     ]
   };
