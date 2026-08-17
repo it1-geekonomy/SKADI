@@ -9,6 +9,7 @@ import Testimonial from "@/components/Testimonial";
 import ROICalculator from "@/components/ROICalculator";
 import Industries from "@/components/Industries";
 import Pricing from "@/components/Pricing";
+import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import BookingModal from "@/components/BookingModal";
 
@@ -33,6 +34,7 @@ export default function LandingPage() {
       {/* <Features /> */}
       <Testimonial />
       <Pricing ref={pricingRef} onBookDemo={openBookingModal} />
+      <FAQ />
       <CTA onBookDemo={openBookingModal} />
       <BookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </>
